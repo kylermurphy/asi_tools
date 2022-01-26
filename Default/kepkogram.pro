@@ -746,8 +746,6 @@ pro kepkogram, $
       elev=*asi_cal.vars[field_index[0]].dataptr
       elev_asi=reverse(elev,1)
 
-      stop
-
       ; get rid of pixels with bad elevation
 
       bad_ele = where(elev_asi le min_elevation or finite(elev_asi) ne 1, c_bad)
@@ -850,8 +848,6 @@ pro kepkogram, $
          the_asis[jj].the_slices[abc].amps = ptr_new(ptrarr(n_images), /allocate_heap)
          the_asis[jj].the_slices[abc].ff = ptr_new(ptrarr(n_images), /allocate_heap)
       endfor
-
-      stop
 
       if keyword_set(thm_foot) then begin
          foot_base_location = '~/'
