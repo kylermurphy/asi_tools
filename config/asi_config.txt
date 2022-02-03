@@ -7,3 +7,6 @@
 ; variable:value
 
 data_dir=D:\data\asi_tools
+
+
+test
