@@ -8,23 +8,23 @@ _EXTRA=ex
   ; set download url and
   ; set local download directories
   if keyword_set(themis) then begin
-    url = 'https://data.phys.ucalgary.ca/sort_by_project/THEMIS/asi/skymaps/'
+    url = !asi_tools.themis_url+'/skymaps/'
     dir = 'THEMIS\skymaps\'
-    chk_site = is_site(site,/themis)
+    chk_site = asi_is_site(site,/themis)
   endif else if keyword_set(rego) then begin
-    url = 'https://data.phys.ucalgary.ca/sort_by_project/GO-Canada/REGO/skymap/'
+    url = !asi_tools.rego_url+'/skymap/'
     dir = 'REGO\skymaps\'
-    chk_site = is_site(site,/rego)
+    chk_site = asi_is_site(site,/rego)
   endif else if keyword_set(rgb) then begin
-    url = 'https://data.phys.ucalgary.ca/sort_by_project/TREx/RGB/skymaps/'
+    url = !asi_tools.rgb_url+'/skymaps/'
     dir = 'RGB\skymaps\'
-    chk_site = is_site(site,/rgb)
+    chk_site = asi_is_site(site,/rgb)
   endif else if keyword_set(blue_line) then begin
     ; no current sky maps
   endif else begin
     url = 'https://data.phys.ucalgary.ca/sort_by_project/THEMIS/asi/skymaps/'
     dir = 'THEMIS\skymaps\'
-    chk_site = is_site(site,/themis)
+    chk_site = asi_is_site(site,/themis)
   endelse
   
   if chk_site eq 0 then begin
@@ -40,20 +40,15 @@ _EXTRA=ex
   ; get full paths to data
   spd_download_expand,url
   
-  stop
-  
   ; setup the local download directory
-  dir=!asi_tools.data_dir+'\'+dir
+  dir=filepath(dir,root_dir=!asi_tools.data_dir)
   
   ; want to add all skymaps to a common folder
   ;as opposed to individual folders
-  for i=0L, url.length-1 do begin
-    
-    paths = spd_download(remote_file=url[i]+'*.sav', local_path=dir)
+  for i=0L, url.length-1 do begin   
+    paths = spd_download(remote_file=url[i]+'*.sav', local_path=dir,no_update=1, _EXTRA=ex)
   endfor
   
-  
-  stop 
 
 
 end
@@ -62,6 +57,6 @@ end
 ;MAIN
 ;test
 
-asi_download_skymap,site='gill'
+asi_download_skymap,site='gill', /force_download
 
 end
