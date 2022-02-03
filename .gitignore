@@ -128,3 +128,6 @@ dmypy.json
 # IDL metadata
 .metadata/
 .project
+
+# Ignore config files
+asi_config.txt
