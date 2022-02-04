@@ -1,3 +1,50 @@
+;+
+; :Function:
+;     asi_config
+; 
+; :Description:
+;     Read and write the asi configuration file
+;     "asi_config.txt" which is stored in
+;     /asi_tools/config/
+;     
+;     Returns a structure used for defining
+;     the !asi_tools system variable
+;     
+;     Relies on 
+;       asi_config_read()
+;       asi_config_write()
+;       
+; :Calling Sequence:
+;     dat_str = asi_config()      
+;
+; :Example:
+;     Read the configuration file
+;       asi_str = asi_config(/cread)
+;     
+;     Write the configuration file
+;     will be prompted to eneter a new
+;     data_dir
+;       asi_str = asi_config(/cwrite)
+;
+; :Input:
+;
+; :Keywords:
+;     cread - read configuration file
+;     cwrite - write configuration file
+;    
+; :Defaults:
+;     cread - read configuration file   
+;
+; :Return:
+;     A structure that contains the variables in 
+;     the configuratio file use for the 
+;     !asi_tools system variable
+;     
+; 
+; :Author: krmurphy - kylemurphy.spacephys@gmail.com
+; 
+; :Modification:
+;-
 function asi_config, cread=cread, cwrite=cwrite
 
   config_file = 'asi_config.txt'
@@ -25,23 +72,6 @@ function asi_config, cread=cread, cwrite=cwrite
     c_str = asi_config_read(fn)
   endelse
 
-
-  
   return, c_str
 
-
-
-
-
 end
-
-
-;Main
-;test
-
-
-a = asi_config(/cread)
-
-end
-
-

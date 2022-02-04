@@ -1,3 +1,37 @@
+;+
+; :Function:
+;     asi_config_read   
+;
+; :Description:
+;     Read the configuration file "config_file"
+;    
+;     Skip comment lines starting with ;
+;     Read variables and values as
+;     variable=value
+;    
+;     Store variables and values in structure
+;     {variable:value}
+;    
+; :Calling Sequence:
+;     dat_str = asi_config_read(config_file)
+;
+; :Input:
+;
+; :Params:
+;     config_file - full path and name of configuration file
+;
+; :Return:
+;     Structure containing the variables in the 
+;     configuration file. Used to define the 
+;     !asi_tools system variable
+;     
+;     {variable:value}
+;
+;
+; :Author: krmurphy - kylemurphy.spacephys@gmail.com
+; 
+; :Modification:
+;-
 function asi_config_read, config_file
 
   fs = file_search(config_file,count=fc)

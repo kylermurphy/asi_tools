@@ -1,5 +1,33 @@
-; lets come back to this
-
+;+
+; :Function:
+;     asi_config_write
+; 
+; :Description:
+;     Write the configuration file config_file.
+;     
+;     Write predifined header
+;     Write variable value pairs as
+;     variable=value
+;     
+;     Prompt for the data_dir variable.
+;     
+;     Write defaults returned from asi_config_str()
+;     
+; :Calling Sequence:
+;     asi_w = asi_config_write(config_file)     
+;
+; :Input:
+;
+; :Params:
+;     config_file - full path and name of configuration file
+;
+; :Keywords:
+;     current - write the !asi_tools variable
+;
+; :Author: krmurphy - kylemurph.spacephys@gmail.com
+; 
+; :Modification:
+;-
 function asi_config_write, config_file, current=current
 
   openw, outlun, config_file, /get_lun
@@ -63,15 +91,4 @@ function asi_config_write, config_file, current=current
   free_lun, outlun
   
   return,0
-end
-
-
-;Main
-;testing
-;
-
-test_file = 'D:\GitHub\asi_tools\Default\config.txt'
-a = asi_config_write(test_file)
-
-
 end

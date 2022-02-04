@@ -1,3 +1,23 @@
+;+
+; :Function:
+;     asi_config_str
+; 
+; :Description:
+;     Return a structure the stores the 
+;     defualt variables and values for
+;     the !asi_tools system variable
+;     
+; :Calling Sequence:
+;     asi_str = asi_config_str( )
+;
+; :Return:
+;     Defualt variables and values for
+;     !asi_tools system variable
+;
+; :Author: krmurphy - kylemurphy.spacephys@gmail.com
+; 
+; :Modification:
+;-
 function asi_config_str
 
   return, {init:0, $ ; determine if asi_tools has been intialized 
