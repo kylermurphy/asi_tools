@@ -65,10 +65,8 @@ function asi_download_skymap, $
 
   if keyword_set(site) then site = site else site = 'gill'
   
-  ; sites can be passed with _array
-  ;to define the array the site is associated
-  ;with
-  ; is so determine the array
+  ;determine  if more then 4 characters
+  ;are passed and set the correct array
   if strlen(site) gt 4 then begin
     s_str = strsplit(site,'_',/extract)
     array = strlowcase(s_str[1])
@@ -96,7 +94,7 @@ function asi_download_skymap, $
   endif else if keyword_set(blueline) then begin
     ; no current sky maps
   endif else begin
-    url = 'https://data.phys.ucalgary.ca/sort_by_project/THEMIS/asi/skymaps/'
+    url = !asi_tools.themis_url+'/skymaps/'
     dir = 'THEMIS\skymaps\'
     chk_site = asi_is_site(site,/themis)
   endelse
@@ -128,6 +126,14 @@ function asi_download_skymap, $
   endfor
 
   return,paths
+
+end
+
+
+;Main
+;test
+
+path = asi_download_skymap(site='gill',ssl_verify_peer=0,  ssl_verify_host=0, force_download=1)
 
 end
 

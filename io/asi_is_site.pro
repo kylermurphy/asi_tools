@@ -49,7 +49,7 @@ function asi_is_site, $
   asi_site = strmid(strlowcase(site),0,4)
   
   ;determine array if more then 4 characters
-  ;are passed
+  ;are passed and set the correct array
   if strlen(site) gt 4 then begin
     s_str = strsplit(site,'_',/extract)
     array = strlowcase(s_str[1])
