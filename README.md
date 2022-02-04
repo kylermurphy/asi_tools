@@ -19,7 +19,7 @@ Running ```asi_init``` will initialize the system variable ```!asi_tools``` whic
 
 Initialize the library for the first time.
 
-```
+```idl
 asi_init
 
 !!!!!!!!!!!!!!!!!!!!!!!!!
@@ -31,11 +31,11 @@ Download skymaps for a particular station apart of aparticular array.
 
 ```idl
 ; download themis gill skymap
-path = asi_download_skymaps('gill',/themis)
-path = asi_download_skymaps('gill')
-path = asi_download_skymaps('gill_themis')
+path = asi_download_skymap(site='gill',/themis)
+path = asi_download_skymap(site='gill')
+path = asi_download_skymap(site='gill_themis')
 
 ; download rego gillam skymap
-path = asi_download_skymaps('gill_rego')
-path = asi_download_skymaps('gill',/rego)
+path = asi_download_skymap(site='gill_rego')
+path = asi_download_skymap(site='gill',/rego)
 ```
