@@ -106,11 +106,14 @@ function asi_download_skymap, $
     return, 0
   endif
   
+  ;get the 4 character code for directory structure
+  asi_site = strmid(strlowcase(site),0,4)
+  
   ; finish setting up download url
   ;skymaps are stored in individual folders
   ;by date. Since we don't know these dates
   ;find the folders first
-  url=url+site+'/'+site+'_*'
+  url=url+asi_site+'/'+asi_site+'_*'
   ; get full paths to data
   spd_download_expand,url
   

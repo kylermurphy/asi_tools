@@ -26,3 +26,16 @@ asi_init
 Enter value for - DATA_DIR: ENTER YOUR LOCAL DATA DIRECTORY, e.g., D:\data\asi_tools
 
 ```
+
+Download skymaps for a particular station apart of aparticular array. 
+
+```idl
+; download themis gill skymap
+path = asi_download_skymaps('gill',/themis)
+path = asi_download_skymaps('gill')
+path = asi_download_skymaps('gill_themis')
+
+; download rego gillam skymap
+path = asi_download_skymaps('gill_rego')
+path = asi_download_skymaps('gill',/rego)
+```
