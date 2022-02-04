@@ -7,6 +7,8 @@ function asi_load_data, site, t0, dt, seconds=seconds, minutes=minutes, hours=ho
 
   asi_init
   
+  ;can add a for loop here if site is an array
+  
   ;make sure we use the 4 character code
   asi_site = strmid(strlowcase(site),0,4)
 
@@ -39,32 +41,31 @@ function asi_load_data, site, t0, dt, seconds=seconds, minutes=minutes, hours=ho
   te = time_double(time_string(time_double(t0)+deltat+120,tformat='YYYY-MM-DD/hh:mm'))
   ; create minute time series
   t_arr = dindgen((te-ts)/60)+ts
-  
-  stop
-   
-
-
 
   ; set download url and
   ; set local download directories
   if keyword_set(themis) then begin
     url = !asi_tools.themis_url
     dir = 'THEMIS\'
+    tf  = 'YYYYMMDD_hhmm'
     chk_site = asi_is_site(asi_site,/themis)
     ;f_path = asi_themis_path(site,t)
   endif else if keyword_set(rego) then begin
     url = !asi_tools.rego_url
     dir = 'REGO\'
+    tf  = 'YYYYMMDD_hhmm'
     chk_site = asi_is_site(asi_site,/rego)
   endif else if keyword_set(rgb) then begin
     url = !asi_tools.rgb_url
     dir = 'TREX\RGB\'
+    tf  = 'YYYYMMDD_hhmm'
     chk_site = asi_is_site(asi_site,/rgb)
   endif else if keyword_set(blueline) then begin
     ; no current sky maps
   endif else begin
     url = !asi_tools.themis_url
     dir = 'THEMIS\'
+    tf  = 'YYYYMMDD_hhmm'
     chk_site = asi_is_site(asi_site,/themis)
   endelse
   
@@ -73,11 +74,40 @@ function asi_load_data, site, t0, dt, seconds=seconds, minutes=minutes, hours=ho
     return, 0
   endif
   
-  ;finish setting up url directory
-  url = url+'stream0/'
   
+  ;the data directories are broken down
+  ; by 
+  ; YYYY/MM/DD/site_?/uthh/
+  ; where ? is a number and array code
+  ; search for a single file to find the
+  ; array code by searching for the url 
+  ; of the first and last frame
+  url_test = url+'stream0/'+ $
+    time_string(t_arr[[0,-1]],tformat='YYYY')+'/'+ $
+    time_string(t_arr[[0,-1]],tformat='MM')+'/'+ $
+    time_string(t_arr[[0,-1]],tformat='DD')+'/'+ $
+    asi_site+'*'
   
+  ;check if directory exists
+  spd_download_expand, url_test
+  if strlen(url_test[0]) eq 0 then return, 0
   
+  asi_append = strsplit(url_test[0],'/_',/extract)
+  asi_text = '_'+asi_append[-1]
+  
+  full_url = url+'stream0/'+ $
+    time_string(t_arr,tformat='YYYY')+'/'+ $
+    time_string(t_arr,tformat='MM')+'/'+ $
+    time_string(t_arr,tformat='DD')+'/'+ $
+    asi_site+asi_text+'/ut'+ $
+    time_string(t_arr,tformat='hh')+'/'+ $
+    time_string(t_arr,tformat=tf)+'*.pgm.gz'
+  
+  spd_download_expand, full_url  
+    stop
+     
+  
+  stop
   return,0
   
 end
