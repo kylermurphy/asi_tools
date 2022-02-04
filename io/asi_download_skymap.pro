@@ -122,8 +122,9 @@ function asi_download_skymap, $
   
   ; want to add all skymaps to a common folder
   ;as opposed to individual folders
+  paths = strarr(url.length)
   for i=0L, url.length-1 do begin   
-    paths = spd_download(remote_file=url[i]+'*.sav', local_path=dir,no_update=1, _EXTRA=ex)
+    paths[i] = spd_download(remote_file=url[i]+'*.sav', local_path=dir,no_update=1, _EXTRA=ex)
   endfor
 
   return,paths
