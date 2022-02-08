@@ -129,6 +129,16 @@ function asi_load_data, site, t0, dt, minutes=minutes, hours=hours, themis=themi
   if keyword_set(path_only) then return, paths
   
   ; read in the PGM files
+  themis_imager_readfile_new,paths,img,meta, count=img_c
+  
+  t_img = time_double(meta[*].exposure_start_cdf,/epoch)
+  
+  for i=0,img_c-1 do begin
+    tvscl,rotate(reform(alog10(img[*,*,i])),7)
+    wait,0.3
+  endfor
+  
+  stop
   return,0
   
 end
@@ -138,12 +148,17 @@ end
 ; test
 
 
-;dat = asi_load_data('gill', '2013-01-01/00:01:22', 3)
+; read some themis data
+;dat = asi_load_data('rank', '2017-09-15/02:30:00', 30, /minutes)
+dat = asi_load_data('gill_themis', '2007-03-07/05:52:00', 8, /minutes)
+
+; read some rego data
 ;dat = asi_load_data('gill', '2018-04-07/05:00:00', 8, /minutes, /rego)
-dat = asi_load_data('pina', '2019-05-05/06:40:00', 8, /minutes, /rgb)
-dat = asi_load_data('pina_rgb', '2019-05-05/06:05:00', 8, /minutes)
-dat = asi_load_data('gill_rego', '2018-04-07/05:22:00', 8, /minutes, /rego,/path_only)
-dat = asi_load_data('gill_themis', '2018-04-07/05:22:00', 8, /minutes)
+;dat = asi_load_data('gill_rego', '2018-04-07/05:22:00', 8, /minutes)
+
+; read some TREX RGB data
+;dat = asi_load_data('pina', '2019-05-05/06:40:00', 8, /minutes, /rgb)
+;dat = asi_load_data('pina_rgb', '2019-05-05/06:05:00', 8, /minutes)
 
 end
 
