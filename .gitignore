@@ -5,3 +5,9 @@
 # Ignore config files
 asi_config.txt
 config/asi_config.txt
+
+# Ignoore Default directory
+# which is being used for 
+# testing
+Default/*
+
