@@ -2,7 +2,8 @@
 ; might be able to call itself from within itself
 
 
-function asi_load_data, site, t0, dt, seconds=seconds, minutes=minutes, hours=hours, themis=themis, rego=rego, rgb=rgb, blue_line=blue_line  
+function asi_load_data, site, t0, dt, minutes=minutes, hours=hours, themis=themis, rego=rego, rgb=rgb, blue_line=blue_line, path_only=path_only, $
+  _EXTRA=ex  
 
 
   asi_init
@@ -28,7 +29,6 @@ function asi_load_data, site, t0, dt, seconds=seconds, minutes=minutes, hours=ho
   case 1 of
     keyword_set(hours):   deltat = dt * 3600.
     keyword_set(minutes): deltat = dt * 60.
-    keyword_set(seconds): deltat = dt
     else:                 deltat = dt * 3600.
   endcase
   
@@ -40,31 +40,31 @@ function asi_load_data, site, t0, dt, seconds=seconds, minutes=minutes, hours=ho
   ts = time_double(time_string(t0,tformat='YYYY-MM-DD/hh:mm'))
   te = time_double(time_string(time_double(t0)+deltat+120,tformat='YYYY-MM-DD/hh:mm'))
   ; create minute time series
-  t_arr = dindgen((te-ts)/60)+ts
+  t_arr = dindgen((te-ts)/60)*60.+ts
 
   ; set download url and
   ; set local download directories
   if keyword_set(themis) then begin
     url = !asi_tools.themis_url
-    dir = 'THEMIS\'
+    dir = 'THEMIS'+path_sep()
     tf  = 'YYYYMMDD_hhmm'
     chk_site = asi_is_site(asi_site,/themis)
     ;f_path = asi_themis_path(site,t)
   endif else if keyword_set(rego) then begin
     url = !asi_tools.rego_url
-    dir = 'REGO\'
+    dir = 'REGO'+path_sep()
     tf  = 'YYYYMMDD_hhmm'
     chk_site = asi_is_site(asi_site,/rego)
   endif else if keyword_set(rgb) then begin
     url = !asi_tools.rgb_url
-    dir = 'TREX\RGB\'
+    dir = 'TREX'+path_sep()+'RGB'+path_sep()
     tf  = 'YYYYMMDD_hhmm'
     chk_site = asi_is_site(asi_site,/rgb)
   endif else if keyword_set(blueline) then begin
     ; no current sky maps
   endif else begin
     url = !asi_tools.themis_url
-    dir = 'THEMIS\'
+    dir = 'THEMIS'+path_sep()
     tf  = 'YYYYMMDD_hhmm'
     chk_site = asi_is_site(asi_site,/themis)
   endelse
@@ -92,22 +92,43 @@ function asi_load_data, site, t0, dt, seconds=seconds, minutes=minutes, hours=ho
   spd_download_expand, url_test
   if strlen(url_test[0]) eq 0 then return, 0
   
+  ;get the ? appended to the site
   asi_append = strsplit(url_test[0],'/_',/extract)
   asi_text = '_'+asi_append[-1]
   
-  full_url = url+'stream0/'+ $
-    time_string(t_arr,tformat='YYYY')+'/'+ $
-    time_string(t_arr,tformat='MM')+'/'+ $
-    time_string(t_arr,tformat='DD')+'/'+ $
-    asi_site+asi_text+'/ut'+ $
-    time_string(t_arr,tformat='hh')+'/'+ $
-    time_string(t_arr,tformat=tf)+'*.pgm.gz'
+  ;create path for downloading
+  dir = filepath(dir,root_dir=!asi_tools.data_dir)
+  paths = strarr(t_arr.length)
   
-  spd_download_expand, full_url  
-    stop
-     
+  ;loop through minute time array
+  ; search url for file, download, and save
+  ; path
+  for i=0l, t_arr.length-1 do begin
+    ;full url to file 
+    full_url = url+'stream0/'+ $
+      time_string(t_arr[i],tformat='YYYY')+'/'+ $
+      time_string(t_arr[i],tformat='MM')+'/'+ $
+      time_string(t_arr[i],tformat='DD')+'/'+ $
+      asi_site+asi_text+'/ut'+ $
+      time_string(t_arr[i],tformat='hh')+'/'+ $
+      time_string(t_arr[i],tformat=tf)+'*.pgm.gz'
+    
+    
+    ;full path to download directory  
+    dl_dir = dir + $
+      time_string(t_arr[i],tformat='YYYY')+path_sep()+ $
+      time_string(t_arr[i],tformat='MM')+path_sep()+ $
+      time_string(t_arr[i],tformat='DD')+path_sep()+ $
+      time_string(t_arr[i],tformat='hh')+path_sep()+ $
+      asi_site+path_sep()
+    
+    paths[i] = spd_download(remote_file=full_url,local_path=dl_dir, no_update=1, _EXTRA=ex)
+  endfor
+   
+  ; return only paths 
+  if keyword_set(path_only) then return, paths
   
-  stop
+  ; read in the PGM files
   return,0
   
 end
@@ -116,12 +137,13 @@ end
 ;Main 
 ; test
 
-;file='https://data.phys.ucalgary.ca/sort_by_instrument/all_sky_camera/TREx/RGB/stream0/2020/04/12/fsmi_rgb-??/ut04/20200412_0418_fsmi_rgb-01_full.pgm.gz'
-;ld = 'D:\data\asi_tools\'
-;path = spd_download(remote_file=file, local_path=ld)
 
-dat = asi_load_data('gill', '2013-01-01/00:01:22', 3)
-
+;dat = asi_load_data('gill', '2013-01-01/00:01:22', 3)
+;dat = asi_load_data('gill', '2018-04-07/05:00:00', 8, /minutes, /rego)
+dat = asi_load_data('pina', '2019-05-05/06:40:00', 8, /minutes, /rgb)
+dat = asi_load_data('pina_rgb', '2019-05-05/06:05:00', 8, /minutes)
+dat = asi_load_data('gill_rego', '2018-04-07/05:22:00', 8, /minutes, /rego,/path_only)
+dat = asi_load_data('gill_themis', '2018-04-07/05:22:00', 8, /minutes)
 
 end
 
