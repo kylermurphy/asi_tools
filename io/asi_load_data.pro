@@ -212,26 +212,4 @@ function asi_load_data, $
 end
 
 
-;Main 
-; test
-
-
-; read some themis data
-;dat = asi_load_data('rank', '2017-09-15/02:30:00', 30, /minutes)
-;dat = asi_load_data('gill_themis', '2007-03-07/05:52:00', 8, /minutes)
-
-; read some rego data
-;dat = asi_load_data('gill', '2015-02-02/10:00:00', 40, /minutes, /rego)
-dat = asi_load_data('gill_rego', '2015-02-02/10:00:00', 40, /minutes, /no_download)
-
-; read some TREX RGB data
-;dat = asi_load_data('fsmi', '2019-02-18/03:25:00', 30, /minutes, /rgb, /meta)
-;dat = asi_load_data('fsmi_rgb', '2019-02-18/03:25:00', 30, /minutes, /meta)
-
-
-
-window, xsize=dat.asi_x, ysize=dat.asi_y
-for i=0L, dat.asi_frames do tvscl,alog10(reform((dat.asi_img[*,*,i])))
-
-end
 
