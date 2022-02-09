@@ -196,7 +196,7 @@ function asi_load_data, $
   if keyword_set(path_only) then return, paths
   
   ; read in the PGM files
-  themis_imager_readfile_new,paths,img,meta, count=img_c
+  trex_imager_readfile,paths,img,meta, count=img_c
   
   t_img = time_double(meta[*].exposure_start_cdf,/epoch)
   
@@ -210,6 +210,4 @@ function asi_load_data, $
   return, r_dat
   
 end
-
-
 
