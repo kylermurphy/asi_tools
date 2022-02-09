@@ -7,28 +7,71 @@
 ;     Check if data exists by querying the server 
 ;     and wheter it has alread been downloaded to the 
 ;     local disk. 
-;
+;     
+;     Download and loads 1 minute PGM files. 
+;     
+; :Calling Sequence:
+;     dat = asi_load_data(site, t0, dt)
+;     
+; :Example:
+; 
+;     Download Gillam REGO data
+;     dat = asi_load_data('gill_rego', '2015-02-02/10:00:00', 40, /minutes)
+;     dat = asi_load_data('gill', '2015-02-02/10:00:00', 40, /minutes, /rego)
+;  
+;     
+;     
 ; :Params:
-;    site
-;    t0
-;    dt
+;    site - ASI to download and load data, sites can be passed
+;            as "site_array" to define the array they are
+;            associated with, e.g., 'gill_rego'
+;    t0 - Start time for loading. These can be string 'YYYY-MM-DD/hh:mm:ss' 
+;            or double (seconds; since 1970).  
+;    dt - Amount of time to load, defaults to hours.
 ;
 ; :Keywords:
-;    minutes
-;    hours
-;    themis
-;    rego
-;    rgb
-;    blue_line
-;    path_only
-;    meta_data
-;    _EXTRA
+;    minutes - specify dt in minutes
+;    hours - specify dt in hours
+;    themis - load data from THEMIS array
+;    rego - loadd data from REGO array
+;    rgb - load data from TREX RGB array
+;    blue_line - load data from TREX Blueline array
+;    path_only - return only the local paths to the files
+;    meta_data - return the meta data structure in the pgm's
+;    _EXTRA - additional keywords for spd_download( )
+;    
+;     _EXTRA examples
+;    
+;     last_version - Flag to only download the last in file in a lexically sorted
+;                    list when multiple matches are found using wildcards
+;     no_update - Flag to not overwrite existing file
+;     force_download - Flag to always overwrite existing file
+;     no_download - Flag to not download remote files
+;     
+; :Defaults:
+;     dt - in hours
+;     array - themis
+;     
+; :Return:
+;     A structure containg the images downloaded/loaded for the specified time.
 ;
-; :Author: krmurph1
+; :Author: krmurphy - kylemurphy.spacephys@gmail.com
+;
+; :Modification:
 ;-
-function asi_load_data, site, t0, dt, minutes=minutes, hours=hours, themis=themis, rego=rego, rgb=rgb, blue_line=blue_line, path_only=path_only, meta_data=meta_data, $
+function asi_load_data, $
+  site, $ ; ASI site to load/download
+  t0, $ ; star time for loading/downloading
+  dt, $ ; duration (default hours)
+  minutes=minutes, $ ; duration in minutes
+  hours=hours, $ ; duration in hours
+  themis=themis, $ ; load from THEMIS array
+  rego=rego, $ ; load from REGO array
+  rgb=rgb, $ ; load from TREX RGB array
+  blue_line=blue_line, $ ; load from TREX blue line
+  path_only=path_only, $ ; return only the paths to the local files
+  meta_data=meta_data, $ ; return the meta data along with the data
   _EXTRA=ex  
-
 
   asi_init
   
