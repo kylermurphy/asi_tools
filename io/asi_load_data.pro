@@ -1,7 +1,31 @@
-; this might have to be a for loop
-; might be able to call itself from within itself
-
-
+;+
+; :Function:
+;     asi_load_data
+;
+; :Description:
+;     Load ASI data for a particular time range. 
+;     Check if data exists by querying the server 
+;     and wheter it has alread been downloaded to the 
+;     local disk. 
+;
+; :Params:
+;    site
+;    t0
+;    dt
+;
+; :Keywords:
+;    minutes
+;    hours
+;    themis
+;    rego
+;    rgb
+;    blue_line
+;    path_only
+;    meta_data
+;    _EXTRA
+;
+; :Author: krmurph1
+;-
 function asi_load_data, site, t0, dt, minutes=minutes, hours=hours, themis=themis, rego=rego, rgb=rgb, blue_line=blue_line, path_only=path_only, meta_data=meta_data, $
   _EXTRA=ex  
 
@@ -133,9 +157,10 @@ function asi_load_data, site, t0, dt, minutes=minutes, hours=hours, themis=themi
   
   t_img = time_double(meta[*].exposure_start_cdf,/epoch)
   
-  r_dat = {asi_img:img, asi_t:t_img, $
+  r_dat = {asi_site:asi_site, asi_array:chk_site.array, $
+            asi_img:img, asi_t:t_img, $
             asi_x:n_elements(img[*,0,0]), asi_y:n_elements(img[0,*,0]), $
-            asi_frames:t_img.length, asi_array:chk_site.array}
+            asi_frames:t_img.length,  asi_paths:paths}
   
   if keyword_set(meta_data) then r_dat = create_struct(r_dat,'asi_meta',meta)
 
@@ -154,7 +179,7 @@ end
 
 ; read some rego data
 ;dat = asi_load_data('gill', '2015-02-02/10:00:00', 40, /minutes, /rego)
-dat = asi_load_data('gill_rego', '2015-02-02/10:00:00', 40, /minutes)
+dat = asi_load_data('gill_rego', '2015-02-02/10:00:00', 40, /minutes, /no_download)
 
 ; read some TREX RGB data
 ;dat = asi_load_data('fsmi', '2019-02-18/03:25:00', 30, /minutes, /rgb, /meta)
