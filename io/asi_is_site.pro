@@ -28,9 +28,11 @@
 ; :Defualts:
 ;     Check if site is part of THEMIS.
 ;  
-; :Return:  
-;   1 - yes
-;   0 - no
+; :Return:
+;   structure  
+;   is_site:1 - yes
+;   is_site:0 - no
+;   array - array tested
 ;
 ; :Author: krmurphy - kylemurphy.spacephys@gmail.com
 ; 
@@ -76,24 +78,24 @@ function asi_is_site, $
   ;check if the site is apart of a given array
   if keyword_set(themis) then begin
     chk_site = where(themis_asi eq asi_site, c)
-    if c gt 0 then return, 1 else return, 0
+    if c gt 0 then return, {is_site:1, array:'THEMIS'} else return, {is_site:0, array:'THEMIS'}
     
   endif else if keyword_set(rego) then begin
     chk_site = where(rego_asi eq asi_site, c)
-    if c gt 0 then return, 1 else return, 0
+    if c gt 0 then return, {is_site:1, array:'REGO'} else return, {is_site:0, array:'REGO'}
    
   endif else if keyword_set(rgb) then begin
     chk_site = where(rgb_asi eq asi_site, c)
-    if c gt 0 then return, 1 else return, 0
+    if c gt 0 then return, {is_site:1, array:'TREX_RGB'} else return, {is_site:0, array:'TREX_RGB'}
     
   endif else if keyword_set(blueline) then begin
     chk_site = where(blue_asi eq asi_site, c)
-    if c gt 0 then return, 1 else return, 0
+    if c gt 0 then return, {is_site:1, array:'TREX_Blueline'} else return, {is_site:0, array:'TREX_Blueline'}
     
   endif else begin
     ;default to themis
     chk_site = where(themis_asi eq asi_site, c)
-    if c gt 0 then return, 1 else return, 0
+    if c gt 0 then return, {is_site:1, array:'THEMIS'} else return, {is_site:0, array:'THEMIS'}
   endelse 
 
 end
