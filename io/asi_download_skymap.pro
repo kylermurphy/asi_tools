@@ -99,7 +99,7 @@ function asi_download_skymap, $
     chk_site = asi_is_site(site,/themis)
   endelse
   
-  if chk_site eq 0 then begin
+  if chk_site.is_site eq 0 then begin
     print, 'Site not appart of input array'
     return, 0
   endif
@@ -117,6 +117,7 @@ function asi_download_skymap, $
   
   ; setup the local download directory
   dir=filepath(dir,root_dir=!asi_tools.data_dir)
+  dir=filepath(asi_site,root_dir=dir)+path_sep()
   
   ; want to add all skymaps to a common folder
   ;as opposed to individual folders
@@ -133,7 +134,7 @@ end
 ;Main
 ;test
 
-path = asi_download_skymap(site='gill',ssl_verify_peer=0,  ssl_verify_host=0, force_download=1)
+path = asi_download_skymap(site='gill_rego',ssl_verify_peer=0,  ssl_verify_host=0, force_download=1)
 
 end
 

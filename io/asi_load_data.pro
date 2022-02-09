@@ -2,7 +2,7 @@
 ; might be able to call itself from within itself
 
 
-function asi_load_data, site, t0, dt, minutes=minutes, hours=hours, themis=themis, rego=rego, rgb=rgb, blue_line=blue_line, path_only=path_only, $
+function asi_load_data, site, t0, dt, minutes=minutes, hours=hours, themis=themis, rego=rego, rgb=rgb, blue_line=blue_line, path_only=path_only, meta_data=meta_data, $
   _EXTRA=ex  
 
 
@@ -69,7 +69,7 @@ function asi_load_data, site, t0, dt, minutes=minutes, hours=hours, themis=themi
     chk_site = asi_is_site(asi_site,/themis)
   endelse
   
-  if chk_site eq 0 then begin
+  if chk_site.is_site eq 0 then begin
     print, 'Site not appart of input array'
     return, 0
   endif
@@ -133,13 +133,13 @@ function asi_load_data, site, t0, dt, minutes=minutes, hours=hours, themis=themi
   
   t_img = time_double(meta[*].exposure_start_cdf,/epoch)
   
-  for i=0,img_c-1 do begin
-    tvscl,rotate(reform(alog10(img[*,*,i])),7)
-    wait,0.3
-  endfor
+  r_dat = {asi_img:img, asi_t:t_img, $
+            asi_x:n_elements(img[*,0,0]), asi_y:n_elements(img[0,*,0]), $
+            asi_frames:t_img.length, asi_array:chk_site.array}
   
-  stop
-  return,0
+  if keyword_set(meta_data) then r_dat = create_struct(r_dat,'asi_meta',meta)
+
+  return, r_dat
   
 end
 
@@ -150,15 +150,20 @@ end
 
 ; read some themis data
 ;dat = asi_load_data('rank', '2017-09-15/02:30:00', 30, /minutes)
-dat = asi_load_data('gill_themis', '2007-03-07/05:52:00', 8, /minutes)
+;dat = asi_load_data('gill_themis', '2007-03-07/05:52:00', 8, /minutes)
 
 ; read some rego data
-;dat = asi_load_data('gill', '2018-04-07/05:00:00', 8, /minutes, /rego)
-;dat = asi_load_data('gill_rego', '2018-04-07/05:22:00', 8, /minutes)
+;dat = asi_load_data('gill', '2015-02-02/10:00:00', 40, /minutes, /rego)
+dat = asi_load_data('gill_rego', '2015-02-02/10:00:00', 40, /minutes)
 
 ; read some TREX RGB data
-;dat = asi_load_data('pina', '2019-05-05/06:40:00', 8, /minutes, /rgb)
-;dat = asi_load_data('pina_rgb', '2019-05-05/06:05:00', 8, /minutes)
+;dat = asi_load_data('fsmi', '2019-02-18/03:25:00', 30, /minutes, /rgb, /meta)
+;dat = asi_load_data('fsmi_rgb', '2019-02-18/03:25:00', 30, /minutes, /meta)
+
+
+
+window, xsize=dat.asi_x, ysize=dat.asi_y
+for i=0L, dat.asi_frames do tvscl,alog10(reform((dat.asi_img[*,*,i])))
 
 end
 
