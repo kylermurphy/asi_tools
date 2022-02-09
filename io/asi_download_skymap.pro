@@ -131,10 +131,3 @@ function asi_download_skymap, $
 end
 
 
-;Main
-;test
-
-path = asi_download_skymap(site='gill_rego',ssl_verify_peer=0,  ssl_verify_host=0, force_download=1)
-
-end
-
