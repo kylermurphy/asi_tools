@@ -1,11 +1,13 @@
-pro asi_skymap_geomag, sm_file
+function asi_skymap_geomag, sm_file, force_calc=force_calc
 
+  if keyword_set(force_calc) then force_calc=1 else force_calc=0
 
+  ; check for the skymap
   fn = file_search(sm_file, count=fc)
   
   if fc eq 0 then begin
     print, 'Skymap file not found: '+sm_file
-    return
+    return, 0
   endif
 
   if strlen(routine_filepath('aacgmidl_v2')) eq 0 then begin
@@ -17,15 +19,31 @@ pro asi_skymap_geomag, sm_file
     print, 'ensure AACGM_V2 is installed'
     print, '----------'
     
-    return
+    return, 0
   endif
   
+  ; restore skymap file
+  restore, fn, /verbose
+  
+  ; check if geomagnetic file exists
+  out_dir = file_dirname(sm_file)
+  out_file = strjoin([skymap.project_uid,'skymap',skymap.site_uid,'geomag',skymap.generation_info[0].valid_interval_start],'_')
+  out_file = out_dir+path_sep()+out_file+'.sav'
+  
+  mag_fn = file_search(out_file, count=mag_c)
+  if mag_c eq 1 and force_calc ne 1 then begin
+    print, 'Geomagnetic skymap exists: '+mag_fn
+    print, 'To force recalculation of Geomagnetic'
+    print, 'coordinates use /force_calc'
+    return, mag_fn
+  endif
+
   ; call the main AACGM_V2 routine which 
   ; sets environmental variables and compiles
   ; the libraries
   aacgm_v2
   
-  restore, fn, /verbose
+  
   
   year  = long(strmid(skymap.generation_info.valid_interval_start,0,4))
   month = long(strmid(skymap.generation_info.valid_interval_start,4,2))
@@ -61,19 +79,16 @@ pro asi_skymap_geomag, sm_file
   ; arrays to the skymap
   ; structure
   skymap=create_struct(skymap,'full_map_mag_latitude',mag_lat,'full_map_mag_longitude',mag_lon)
-  
-  out_dir = file_dirname(sm_file)
-  out_file = strjoin([skymap.project_uid,'skymap',skymap.site_uid,'geomag',skymap.generation_info[0].valid_interval_start],'_')
-  out_file = out_file+'.sav'
-  
-  save,skymap,filename=out_dir+path_sep()+out_file
+ 
+  save,skymap,filename=ouf_file
+  return, out_file
 end
 
 
 ;Main
 ; test
 
-asi_skymap_geomag,'D:\data\asi_tools\REGO\skymaps\gill\rego_skymap_gill_20141102-%2B_vXX.sav'
+fn =asi_skymap_geomag('D:\data\asi_tools\REGO\skymaps\gill\rego_skymap_gill_20141102-%2B_vXX.sav', /force_calc)
 
 end
 
