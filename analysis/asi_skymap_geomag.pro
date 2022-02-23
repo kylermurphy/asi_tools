@@ -27,8 +27,6 @@ function asi_skymap_geomag, sm_file, force_calc=force_calc
   ; the entire set of routines
   resolve_routine,'aacgmidl_v2',/COMPILE_FULL_FILE, /EITHER
   resolve_routine,'aacgm_v2',/COMPILE_FULL_FILE, /EITHER
-
-  stop
   
   if keyword_set(force_calc) then force_calc=1 else force_calc=0
 
@@ -45,15 +43,16 @@ function asi_skymap_geomag, sm_file, force_calc=force_calc
   
   ; check if geomagnetic file exists
   out_dir = file_dirname(sm_file)
-  out_file = strjoin([skymap.project_uid,'skymap',skymap.site_uid,'geomag',skymap.generation_info[0].valid_interval_start],'_')
-  out_file = out_dir+path_sep()+out_file+'.sav'
+  out_file = strjoin([skymap.project_uid,'skymap',skymap.site_uid,'geomag',strmid(skymap.generation_info[0].valid_interval_start,0,8)],'_')
+  out_file = out_file+'.sav'
   
   mag_fn = file_search(out_file, count=mag_c)
   if mag_c eq 1 and force_calc ne 1 then begin
     print, 'Geomagnetic skymap exists: '+mag_fn
     print, 'To force recalculation of Geomagnetic'
     print, 'coordinates use /force_calc'
-    return, mag_fn
+    restore, mag_fn
+    return, {skymap:skymap, path:mag_fn}
   endif
 
   year  = long(strmid(skymap.generation_info.valid_interval_start,0,4))
@@ -62,8 +61,11 @@ function asi_skymap_geomag, sm_file, force_calc=force_calc
   hour  = long(strmid(skymap.generation_info.valid_interval_start,8,2))
   
   
-  sv = call_function('AACGM_v2_SetDateTime',year,month,day,hour)
-  ret = AACGM_v2_SetDateTime(year,month,day,hour)
+  sv = call_function('AACGM_v2_SetDateTime',1997,6,25)
+  sv = call_function('cnvcoord_v2', 50,120,111)
+
+
+  ret = call_function('AACGM_v2_SetDateTime',year,month,day,hour)
   
   geo_lat = skymap.FULL_MAP_LATITUDE
   geo_lon = skymap.FULL_MAP_LONGITUDE
@@ -89,7 +91,7 @@ function asi_skymap_geomag, sm_file, force_calc=force_calc
       alt_temp[*] = alt[i]
       lat_temp = reform(geo_lat[j,*,i])
       lon_temp = reform(geo_lon[j,*,i])
-      geo_mag = cnvcoord_v2(lat_temp,lon_temp,alt_temp)
+      geo_mag = call_function('cnvcoord_v2',lat_temp,lon_temp,alt_temp)
       
       mag_lat[j,*,i]=geo_mag[0,*]
       mag_lon[j,*,i]=geo_mag[1,*]
@@ -97,7 +99,6 @@ function asi_skymap_geomag, sm_file, force_calc=force_calc
     
     ; calculate the "center"
     ; coordinates of each pixel
-    
     mlat[*,*,i] = (mag_lat[0:im_ind,0:im_ind,i] + mag_lat[1:im_ind+1,0:im_ind,i] + mag_lat[1:im_ind+1,1:im_ind+1,i]+mag_lat[0:im_ind,1:im_ind+1,i])/4.0
     mlon[*,*,i] = (mag_lon[0:im_ind,0:im_ind,i] + mag_lon[1:im_ind+1,0:im_ind,i] + mag_lon[1:im_ind+1,1:im_ind+1,i]+mag_lon[0:im_ind,1:im_ind+1,i])/4.0
  
@@ -115,15 +116,16 @@ function asi_skymap_geomag, sm_file, force_calc=force_calc
            'center_mag_latitude', mlat, 'center_mag_longitude', mlon)
  
  
-  save,skymap,filename=ouf_file
-  return, out_file
+  save, skymap, filename=out_dir+path_sep()+out_file
+  
+  return, {skymap:skymap, path:out_dir+path_sep()+out_file}
 end
 
 
 ;Main
 ; test
 
-fn=asi_skymap_geomag('D:\data\asi_tools\REGO\skymaps\gill\rego_skymap_gill_20141102-%2B_vXX.sav', /force_calc)
+fn=asi_skymap_geomag('D:\data\asi_tools\REGO\skymaps\gill\rego_skymap_gill_20141102-%2B_vXX.sav',/force)
 
 end
 
