@@ -264,22 +264,3 @@ function asi_load_data, $
   return, r_dat
   
 end
-
-
-;Main 
-; test
-
-
-; read some themis data
-;dat = asi_load_data('rank', '2017-09-15/02:30:00', 2, /minutes,/no_load)
-;dat = asi_load_data('gill_themis', '2007-03-07/05:52:00', 8, /minutes)
-
-; read some rego data
-;dat = asi_load_data('gill', '2015-02-02/10:00:00', 40, /minutes, /rego)
-;dat = asi_load_data('gill_rego', '2018-08-01/06:00:00', 2, /minutes)
-
-; read some TREX RGB data
-;dat = asi_load_data('fsmi', '2019-02-18/03:25:00', 2, /minutes, /rgb, /meta)
-;dat = asi_load_data('fsmi_rgb', '2019-02-18/03:25:00', 30, /minutes, /meta)
-
-end

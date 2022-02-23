@@ -128,12 +128,3 @@ function asi_download_skymap, $
   return,paths
 
 end
-
-
-;Main
-;test
-
-path = asi_download_skymap(site='fsim_rgb')
-
-end
-

@@ -166,13 +166,3 @@ function asi_skymap_geomag, $
   
   return, {skymap:reform(skymap), path:out_dir+path_sep()+out_file}
 end
-
-
-;Main
-; test
-
-fn=asi_skymap_geomag('D:\data\asi_tools\REGO\skymaps\gill\rego_skymap_gill_20141102-%2B_vXX.sav',/force)
-
-end
-
-
