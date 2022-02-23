@@ -278,10 +278,5 @@ end
 ;dat = asi_load_data('fsmi', '2019-02-18/03:25:00', 2, /minutes, /rgb, /meta)
 ;dat = asi_load_data('fsmi_rgb', '2019-02-18/03:25:00', 30, /minutes, /meta)
 
-
-
-;window, xsize=dat.asi_x, ysize=dat.asi_y
-;for i=0L, dat.asi_frames do tvscl,alog10(reform((dat.asi_img[*,*,i])))
-
 end
 
