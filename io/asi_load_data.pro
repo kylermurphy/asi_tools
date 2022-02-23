@@ -38,6 +38,8 @@
 ;    blue_line - load data from TREX Blueline array
 ;    path_only - return only the local paths to the files
 ;    meta_data - return the meta data structure in the pgm's
+;    no_load - don't load the data, only return the paths and skymap
+;    
 ;    _EXTRA - additional keywords for spd_download( )
 ;    
 ;     _EXTRA examples
@@ -53,7 +55,8 @@
 ;     array - themis
 ;     
 ; :Return:
-;     A structure containg the images downloaded/loaded for the specified time.
+;     A structure containg the images downloaded/loaded for the specified time,
+;     the paths to the images, the imager skymap, and metadata
 ;
 ; :Author: krmurphy - kylemurphy.spacephys@gmail.com
 ;
@@ -71,6 +74,7 @@ function asi_load_data, $
   blue_line=blue_line, $ ; load from TREX blue line
   path_only=path_only, $ ; return only the paths to the local files
   meta_data=meta_data, $ ; return the meta data along with the data
+  no_load=no_load, $ ;don't load the data, only return paths and skymap
   _EXTRA=ex  
 
   asi_init
@@ -130,6 +134,7 @@ function asi_load_data, $
   endif else if keyword_set(blueline) then begin
     ; no current sky maps
   endif else begin
+    themis=1
     url = !asi_tools.themis_url
     dir = 'THEMIS'+path_sep()
     tf  = 'YYYYMMDD_hhmm'
@@ -191,19 +196,68 @@ function asi_load_data, $
     
     paths[i] = spd_download(remote_file=full_url,local_path=dl_dir, no_update=1, _EXTRA=ex)
   endfor
-   
-  ; return only paths 
-  if keyword_set(path_only) then return, paths
   
+
+  ; load the skymap
+  ;find all skymaps for current site/array
+  skymap_path= asi_download_skymap(site=asi_site,themis=themis,rego=rego,rgb=rgb,blueline=blueline)
+  ; check the type returned to make sure
+  ;paths are actually returned
+  skymap_type = size(skymap_path,/type)
+  
+  if skymap_type eq 7 then begin
+    skymap_dir = file_dirname(skymap_path[0])
+    skymap_date= strarr(skymap_path.length)
+    for i=0L, skymap_path.length-1 do begin
+      dd = strsplit(skymap_path[i],'_-',/extract)
+      skymap_date[i]=dd[-3]
+    endfor
+    ;find skymap closest in time to data
+    skymap_date = time_double(skymap_date,tformat='YYYYMMDD')
+    min_diff = min(abs(skymap_date-t_arr[0]),/nan)
+    skymap_pos = !C
+    load_date = skymap_date[skymap_pos]
+    
+    ;find the geomagnetic skymap
+    skymap_mag = file_search(skymap_dir, $
+      chk_site.array+'_skymap_'+asi_site+'_geomag_'+time_string(load_date,tformat='YYYYMMDD')+'*.sav', $
+      count=fc)
+    
+    ;if the geomagnetic skymap
+    ; doesn't exist create and load
+    ; it otherwise restore the save
+    ; file  
+    if fc eq 0 then begin
+      skymap_dat = asi_skymap_geomag(skymap_path[skymap_pos])
+      skymap = skymap_dat.skymap
+    endif else begin
+      restore, skymap_mag
+    endelse
+  ; if there are no skymaps 
+  ; don't return anything  
+  endif else begin
+    skymap = 0
+  endelse
+
   ; read in the PGM files
   trex_imager_readfile,paths,img,meta, count=img_c
   
+  ; return only paths
+  if keyword_set(path_only) then return, {asi_paths:paths}
+  
+  if keyword_set(no_load) then begin
+    return, {asi_paths:paths, asi_skymap:skymap}
+  endif
+                 
+  ; read in the PGM files
+  trex_imager_readfile,paths,img,meta, count=img_c
+
   t_img = time_double(meta[*].exposure_start_cdf,/epoch)
   
   r_dat = {asi_site:asi_site, asi_array:chk_site.array, $
             asi_img:img, asi_t:t_img, $
             asi_x:n_elements(img[*,0,0]), asi_y:n_elements(img[0,*,0]), $
-            asi_frames:t_img.length,  asi_paths:paths}
+            asi_frames:t_img.length,  asi_paths:paths, asi_skymap:skymap}
   
   if keyword_set(meta_data) then r_dat = create_struct(r_dat,'asi_meta',meta)
 
@@ -211,3 +265,21 @@ function asi_load_data, $
   
 end
 
+
+;Main 
+; test
+
+
+; read some themis data
+;dat = asi_load_data('rank', '2017-09-15/02:30:00', 2, /minutes,/no_load)
+;dat = asi_load_data('gill_themis', '2007-03-07/05:52:00', 8, /minutes)
+
+; read some rego data
+;dat = asi_load_data('gill', '2015-02-02/10:00:00', 40, /minutes, /rego)
+;dat = asi_load_data('gill_rego', '2018-08-01/06:00:00', 2, /minutes)
+
+; read some TREX RGB data
+;dat = asi_load_data('fsmi', '2019-02-18/03:25:00', 2, /minutes, /rgb, /meta)
+;dat = asi_load_data('fsmi_rgb', '2019-02-18/03:25:00', 30, /minutes, /meta)
+
+end
