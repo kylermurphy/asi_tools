@@ -198,52 +198,58 @@ function asi_load_data, $
   ; load the skymap
   ;find all skymaps for current site/array
   skymap_path= asi_download_skymap(site=asi_site,themis=themis,rego=rego,rgb=rgb,blueline=blueline)
-  skymap_dir = file_dirname(skymap_path[0])
-  skymap_date= strarr(skymap_path.length)
-  for i=0L, skymap_path.length-1 do begin
-    dd = strsplit(skymap_path[i],'_-',/extract)
-    skympat_date[i]=dd[3]
-  endfor
-  ;find skymap closest in time to data
-  skymap_date = time_double(skymap_date,tformat='YYYYMMDD')
-  min_diff = min(abs(skymap_date-t_arr[0]),/nan)
-  skymap_pos = !C
-  load_date = skymap_date[skymap_pos]
+  ; check the type returned to make sure
+  ;paths are actually returned
+  skymap_type = size(skymap_path,/type)
   
-  ;find the geomagnetic skymap
-  skymap_mag = file_search(skymap_dir, $
-    chk_site.array+'_skymap_'+asi_site+'_geomag_'+time_string(load_date,tformat='YYYYMMDD')+'*.sav', $
-    count=fc)
+  if skymap_type eq 7 then begin
+    skymap_dir = file_dirname(skymap_path[0])
+    skymap_date= strarr(skymap_path.length)
+    for i=0L, skymap_path.length-1 do begin
+      dd = strsplit(skymap_path[i],'_-',/extract)
+      skymap_date[i]=dd[-3]
+    endfor
+    ;find skymap closest in time to data
+    skymap_date = time_double(skymap_date,tformat='YYYYMMDD')
+    min_diff = min(abs(skymap_date-t_arr[0]),/nan)
+    skymap_pos = !C
+    load_date = skymap_date[skymap_pos]
     
-  ;if the geomagnetic skymap
-  ; doesn't exist create and load
-  ; it otherwise restore the save
-  ; file  
-  if fc eq 0 then begin
-    skymap = asi_skymap_geomag(skymap_path[skymap_pos])
+    ;find the geomagnetic skymap
+    skymap_mag = file_search(skymap_dir, $
+      chk_site.array+'_skymap_'+asi_site+'_geomag_'+time_string(load_date,tformat='YYYYMMDD')+'*.sav', $
+      count=fc)
+    
+    ;if the geomagnetic skymap
+    ; doesn't exist create and load
+    ; it otherwise restore the save
+    ; file  
+    if fc eq 0 then begin
+      skymap_dat = asi_skymap_geomag(skymap_path[skymap_pos])
+      skymap = skymap_dat.skymap
+    endif else begin
+      restore, skymap_mag
+    endelse
   endif else begin
-    restore, skymap_mag
+    skymap = 0
   endelse
   
   ; return only paths
   if keyword_set(path_only) then return, {asi_paths:paths}
   
   if keyword_set(no_load) then begin
-    
-    stop
+    return, {asi_paths:paths, asi_skymap:skymap}
   endif
-  
-  stop
                  
   ; read in the PGM files
-  themis_imager_readfile_new,paths,img,meta, count=img_c
+  trex_imager_readfile,paths,img,meta, count=img_c
 
   t_img = time_double(meta[*].exposure_start_cdf,/epoch)
   
   r_dat = {asi_site:asi_site, asi_array:chk_site.array, $
             asi_img:img, asi_t:t_img, $
             asi_x:n_elements(img[*,0,0]), asi_y:n_elements(img[0,*,0]), $
-            asi_frames:t_img.length,  asi_paths:paths}
+            asi_frames:t_img.length,  asi_paths:paths, asi_skymap:skymap}
   
   if keyword_set(meta_data) then r_dat = create_struct(r_dat,'asi_meta',meta)
 
@@ -262,10 +268,10 @@ end
 
 ; read some rego data
 ;dat = asi_load_data('gill', '2015-02-02/10:00:00', 40, /minutes, /rego)
-dat = asi_load_data('gill_rego', '2014-11-04/06:00:00', 40, /minutes)
+;dat = asi_load_data('gill_rego', '2018-08-01/06:00:00', 2, /minutes)
 
 ; read some TREX RGB data
-;dat = asi_load_data('fsmi', '2019-02-18/03:25:00', 30, /minutes, /rgb, /meta)
+dat = asi_load_data('fsmi', '2019-02-18/03:25:00', 2, /minutes, /rgb, /meta)
 ;dat = asi_load_data('fsmi_rgb', '2019-02-18/03:25:00', 30, /minutes, /meta)
 
 

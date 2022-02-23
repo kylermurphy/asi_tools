@@ -72,29 +72,28 @@ function asi_download_skymap, $
     array = strlowcase(s_str[1])
     if array eq 'themis' then themis=1 $
       else if array eq 'rego' then rego=1 $
-      else if array eq 'rgb' then rbg=1 $
+      else if array eq 'rgb' then rgb=1 $
       else if array eq 'blueline' then blueline=1 
   endif
   
-
   ; set download url and
   ; set local download directories
   if keyword_set(themis) then begin
-    url = !asi_tools.themis_url+'/skymaps/'
+    url = !asi_tools.themis_url+'skymaps/'
     dir = 'THEMIS\skymaps\'
     chk_site = asi_is_site(site,/themis)
   endif else if keyword_set(rego) then begin
-    url = !asi_tools.rego_url+'/skymap/'
+    url = !asi_tools.rego_url+'skymap/'
     dir = 'REGO\skymaps\'
     chk_site = asi_is_site(site,/rego)
   endif else if keyword_set(rgb) then begin
-    url = !asi_tools.rgb_url+'/skymaps/'
+    url = !asi_tools.rgb_url+'skymaps/'
     dir = 'TREX\RGB\skymaps\'
     chk_site = asi_is_site(site,/rgb)
   endif else if keyword_set(blueline) then begin
     ; no current sky maps
   endif else begin
-    url = !asi_tools.themis_url+'/skymaps/'
+    url = !asi_tools.themis_url+'skymaps/'
     dir = 'THEMIS\skymaps\'
     chk_site = asi_is_site(site,/themis)
   endelse
@@ -134,7 +133,7 @@ end
 ;Main
 ;test
 
-path = asi_download_skymap(site='gill_rego',ssl_verify_peer=0,  ssl_verify_host=0, force_download=1)
+path = asi_download_skymap(site='fsim_rgb')
 
 end
 

@@ -46,7 +46,7 @@ function asi_skymap_geomag, sm_file, force_calc=force_calc
   out_file = strjoin([skymap.project_uid,'skymap',skymap.site_uid,'geomag',strmid(skymap.generation_info[0].valid_interval_start,0,8)],'_')
   out_file = out_file+'.sav'
   
-  mag_fn = file_search(out_file, count=mag_c)
+  mag_fn = file_search(out_dir+path_sep()+out_file, count=mag_c)
   if mag_c eq 1 and force_calc ne 1 then begin
     print, 'Geomagnetic skymap exists: '+mag_fn
     print, 'To force recalculation of Geomagnetic'
@@ -75,9 +75,14 @@ function asi_skymap_geomag, sm_file, force_calc=force_calc
   mag_lat[*] = !values.f_nan
   mag_lon    = mag_lat
   
-  im_sz  = n_elements(mag_lat[*,0,0])-1
-  im_ind = im_sz-1
-  mlat = fltarr(im_sz,im_sz,alt.length)
+  ;x dimensions of array
+  imx_sz  = n_elements(mag_lat[*,0,0])-1
+  imx_ind = imx_sz-1
+  ;y dimensions of array
+  imy_sz  = n_elements(mag_lat[0,*,0])-1
+  imy_ind = imy_sz-1
+  
+  mlat = fltarr(imx_sz,imy_sz,alt.length)
   mlat[*] = !values.f_nan
   mlon = mlat
   glat = mlat
@@ -99,11 +104,11 @@ function asi_skymap_geomag, sm_file, force_calc=force_calc
     
     ; calculate the "center"
     ; coordinates of each pixel
-    mlat[*,*,i] = (mag_lat[0:im_ind,0:im_ind,i] + mag_lat[1:im_ind+1,0:im_ind,i] + mag_lat[1:im_ind+1,1:im_ind+1,i]+mag_lat[0:im_ind,1:im_ind+1,i])/4.0
-    mlon[*,*,i] = (mag_lon[0:im_ind,0:im_ind,i] + mag_lon[1:im_ind+1,0:im_ind,i] + mag_lon[1:im_ind+1,1:im_ind+1,i]+mag_lon[0:im_ind,1:im_ind+1,i])/4.0
+    mlat[*,*,i] = (mag_lat[0:imx_ind,0:imy_ind,i] + mag_lat[1:imx_ind+1,0:imy_ind,i] + mag_lat[1:imx_ind+1,1:imy_ind+1,i]+mag_lat[0:imx_ind,1:imy_ind+1,i])/4.0
+    mlon[*,*,i] = (mag_lon[0:imx_ind,0:imy_ind,i] + mag_lon[1:imx_ind+1,0:imy_ind,i] + mag_lon[1:imx_ind+1,1:imy_ind+1,i]+mag_lon[0:imx_ind,1:imy_ind+1,i])/4.0
  
-    glat[*,*,i] = (geo_lat[0:im_ind,0:im_ind,i] + geo_lat[1:im_ind+1,0:im_ind,i] + geo_lat[1:im_ind+1,1:im_ind+1,i]+geo_lat[0:im_ind,1:im_ind+1,i])/4.0
-    glon[*,*,i] = (geo_lon[0:im_ind,0:im_ind,i] + geo_lon[1:im_ind+1,0:im_ind,i] + geo_lon[1:im_ind+1,1:im_ind+1,i]+geo_lon[0:im_ind,1:im_ind+1,i])/4.0
+    glat[*,*,i] = (geo_lat[0:imx_ind,0:imy_ind,i] + geo_lat[1:imx_ind+1,0:imy_ind,i] + geo_lat[1:imx_ind+1,1:imy_ind+1,i]+geo_lat[0:imx_ind,1:imy_ind+1,i])/4.0
+    glon[*,*,i] = (geo_lon[0:imx_ind,0:imy_ind,i] + geo_lon[1:imx_ind+1,0:imy_ind,i] + geo_lon[1:imx_ind+1,1:imy_ind+1,i]+geo_lon[0:imx_ind,1:imy_ind+1,i])/4.0
   endfor
   
   
@@ -118,7 +123,7 @@ function asi_skymap_geomag, sm_file, force_calc=force_calc
  
   save, skymap, filename=out_dir+path_sep()+out_file
   
-  return, {skymap:skymap, path:out_dir+path_sep()+out_file}
+  return, {skymap:reform(skymap), path:out_dir+path_sep()+out_file}
 end
 
 
