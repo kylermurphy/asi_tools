@@ -197,6 +197,7 @@ function asi_load_data, $
     paths[i] = spd_download(remote_file=full_url,local_path=dl_dir, no_update=1, _EXTRA=ex)
   endfor
   
+
   ; load the skymap
   ;find all skymaps for current site/array
   skymap_path= asi_download_skymap(site=asi_site,themis=themis,rego=rego,rgb=rgb,blueline=blueline)
@@ -237,6 +238,9 @@ function asi_load_data, $
   endif else begin
     skymap = 0
   endelse
+
+  ; read in the PGM files
+  trex_imager_readfile,paths,img,meta, count=img_c
   
   ; return only paths
   if keyword_set(path_only) then return, {asi_paths:paths}
@@ -279,4 +283,3 @@ end
 ;dat = asi_load_data('fsmi_rgb', '2019-02-18/03:25:00', 30, /minutes, /meta)
 
 end
-
