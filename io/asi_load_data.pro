@@ -39,6 +39,7 @@
 ;    path_only - return only the local paths to the files
 ;    meta_data - return the meta data structure in the pgm's
 ;    no_load - don't load the data, only return the paths and skymap
+;    
 ;    _EXTRA - additional keywords for spd_download( )
 ;    
 ;     _EXTRA examples
@@ -54,7 +55,8 @@
 ;     array - themis
 ;     
 ; :Return:
-;     A structure containg the images downloaded/loaded for the specified time.
+;     A structure containg the images downloaded/loaded for the specified time,
+;     the paths to the images, the imager skymap, and metadata
 ;
 ; :Author: krmurphy - kylemurphy.spacephys@gmail.com
 ;
@@ -230,6 +232,8 @@ function asi_load_data, $
     endif else begin
       restore, skymap_mag
     endelse
+  ; if there are no skymaps 
+  ; don't return anything  
   endif else begin
     skymap = 0
   endelse
@@ -263,7 +267,7 @@ end
 
 
 ; read some themis data
-;dat = asi_load_data('rank', '2017-09-15/02:30:00', 30, /minutes)
+;dat = asi_load_data('rank', '2017-09-15/02:30:00', 2, /minutes,/no_load)
 ;dat = asi_load_data('gill_themis', '2007-03-07/05:52:00', 8, /minutes)
 
 ; read some rego data
@@ -271,7 +275,7 @@ end
 ;dat = asi_load_data('gill_rego', '2018-08-01/06:00:00', 2, /minutes)
 
 ; read some TREX RGB data
-dat = asi_load_data('fsmi', '2019-02-18/03:25:00', 2, /minutes, /rgb, /meta)
+;dat = asi_load_data('fsmi', '2019-02-18/03:25:00', 2, /minutes, /rgb, /meta)
 ;dat = asi_load_data('fsmi_rgb', '2019-02-18/03:25:00', 30, /minutes, /meta)
 
 

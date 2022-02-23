@@ -1,4 +1,45 @@
-function asi_skymap_geomag, sm_file, force_calc=force_calc
+;+
+; :Function:
+;     asi_skymap_geomag
+;
+; :Description:
+;     Calculate the geomagnetic coordinates for
+;     skymaps downloaded from the calgary data
+;     server. 
+;     
+;     Calculate the center latitude and longitude
+;     of each pixel in both geographic and 
+;     geomagnetic coordinates.
+;     
+;     Require the aacgm library which ships with
+;     SPEDAS.
+;     
+; :Calling Sequence:
+;     dat = asi_Skymap_geomag(sm)
+;     
+; :Params:
+;     sm_file - skymap file to calculate coordinates for
+;
+; :Keywords:
+;     force_calc - if the geomagnetic file exists force
+;                  recalculation of all parameters
+;
+; :Defaults:
+;     none
+;     
+; :Return:
+;     A structure containing the new skymap with geomagnetic
+;     coordinates and pixel center coordinates and the path 
+;     to the new save file
+;         
+; 
+; :Author: krmurphy - kylemurphy.spacephys@gmail.com
+; 
+; :Modification:
+;-
+function asi_skymap_geomag, $
+  sm_file, $ ; skymap file from calgary website to add coordinates to
+  force_calc=force_calc ; if geomag file exists overwrite and recalculate
 
   
   ; call the main AACGM_V2 routine which
