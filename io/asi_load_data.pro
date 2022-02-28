@@ -55,8 +55,24 @@
 ;     array - themis
 ;     
 ; :Return:
-;     A structure containg the images downloaded/loaded for the specified time,
-;     the paths to the images, the imager skymap, and metadata
+;     A structure containingg the images downloaded/loaded for the specified time,
+;     the paths to the images, the imager skymap, imager rotation, and metadata
+;     
+;     Imager rotation
+;     
+;     Some of the images need to be rotated to match most ASI convections. 
+;     Namely North at the top and West to the left (similar to maps).
+;     
+;     The asi_rotate tag defines what type of rotation is required based on the
+;     latitdue of the bottom and top of the ASI field of view and the 
+;     longitude of the left and right of the ASI field of view.
+;     
+;     The ais_rotate tag is an integer which can be passed to the IDL function
+;     rotate( ) as the "direction" argument to rotate the images so that North
+;     is at the top and West is to the left. 
+;     
+;     asi_is_north_up - 1 (yes), 0 (no)
+;     asi_is_west_left - 1 (yes), 0 (no)
 ;
 ; :Author: krmurphy - kylemurphy.spacephys@gmail.com
 ;
@@ -233,10 +249,51 @@ function asi_load_data, $
     endif else begin
       restore, skymap_mag
     endelse
+  
+  ; determine if there is a need to 
+  ; rotate the asi camera data and 
+  ; subsequently all skymaps
+  
+  ; get the image size
+  im_size = size(skymap.FULL_MAP_LATITUDE)
+  x_sz = im_size[1]
+  y_sz = im_size[2]  
+  
+  ; find key positions in the skymaps
+  ; position of min/max latitude along the center x position of the array
+  lat_min = min(skymap.CENTER_GEO_LATITUDE[x_sz/2.,*,1],max=lat_max,subscript_max=lat_max_pos,/nan)
+  lat_min_pos = !C
+
+  ; positions of min/max longitude along the centery y position of the array
+  lon_min = min(skymap.CENTER_GEO_LONGITUDE[*,y_sz/2,1],max=lon_max,subscript_max=lon_max_pos,/nan)
+  lon_min_pos = !C
+  
+  ; if the position of the min lat
+  ; is greater then the position of max lat
+  ; then north is down and asi_is_north_up = 0 
+  if lat_min_pos gt lat_max_pos then asi_is_north_up=0 else asi_is_north_up=1
+  
+  ; if the position of the min lon
+  ; is greater then the position of
+  ; the max long then west is right
+  ; and asi_west_is_left = 0
+  if lon_min_pos gt lon_max_pos then asi_is_west_left=0 else asi_is_west_left=1
+  
+  ; determine the type of rotation needed
+  ; this is the rotation code in the idl
+  ; function rotate() - see documentation 
+  ; for details
+  if lat_min_pos lt lat_max_pos and lon_min_pos lt lon_max_pos then i_rot=0 $
+  else if lat_min_pos gt lat_max_pos and lon_min_pos gt lon_max_pos then i_rot=2 $
+  else if lat_min_pos gt lat_max_pos and lon_min_pos lt lon_max_pos then i_rot=7 $
+  else i_rot=-1
+  
   ; if there are no skymaps 
   ; don't return anything  
   endif else begin
-    skymap = 0
+    skymap = -1
+    asi_is_north_up = -1
+    asi_is_west_left = -1
   endelse
 
   ; read in the PGM files
@@ -246,7 +303,8 @@ function asi_load_data, $
   if keyword_set(path_only) then return, {asi_paths:paths}
   
   if keyword_set(no_load) then begin
-    return, {asi_paths:paths, asi_skymap:skymap}
+    return, {asi_paths:paths, asi_skymap:skymap, asi_rotate:i_rot, $
+      asi_is_north_up:asi_is_north_up, asi_is_west_left:asi_is_west_left}
   endif
                  
   ; read in the PGM files
@@ -257,7 +315,8 @@ function asi_load_data, $
   r_dat = {asi_site:asi_site, asi_array:chk_site.array, $
             asi_img:img, asi_t:t_img, $
             asi_x:n_elements(img[*,0,0]), asi_y:n_elements(img[0,*,0]), $
-            asi_frames:t_img.length,  asi_paths:paths, asi_skymap:skymap}
+            asi_frames:t_img.length,  asi_paths:paths, asi_skymap:skymap, asi_rotate:i_rot, $
+            asi_is_north_up:asi_is_north_up, asi_is_west_left:asi_is_west_left}
   
   if keyword_set(meta_data) then r_dat = create_struct(r_dat,'asi_meta',meta)
 
