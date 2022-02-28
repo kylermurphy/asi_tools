@@ -142,8 +142,6 @@ function asi_load_data, $
     else if array eq 'blueline' then blueline=1
   endif
   
-  stop
-  
   ;create a time_series from t0 and dt
   ; if no keyword set assume hours
   case 1 of
@@ -246,7 +244,11 @@ function asi_load_data, $
     paths[i] = spd_download(remote_file=full_url,local_path=dl_dir, no_update=1, _EXTRA=ex)
   endfor
   
-
+  ; check if any data was loaded
+  ;if not return only paths=-1
+  paths = file_search(paths,count=fc)
+  if fc eq 0 then return, {asi_paths:-1}
+  
   ; load the skymap
   ;find all skymaps for current site/array
   skymap_path= asi_download_skymap(site=asi_site,themis=themis,rego=rego,rgb=rgb,blueline=blueline)
@@ -330,9 +332,6 @@ function asi_load_data, $
     asi_is_west_left = -1
   endelse
 
-  ; read in the PGM files
-  trex_imager_readfile,paths,img,meta, count=img_c
-  
   ; return only paths
   if keyword_set(path_only) then return, {asi_paths:paths}
   
