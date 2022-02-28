@@ -41,6 +41,7 @@ function asi_skymap_geomag, $
   sm_file, $ ; skymap file from calgary website to add coordinates to
   force_calc=force_calc ; if geomag file exists overwrite and recalculate
 
+  asi_init
   
   ; call the main AACGM_V2 routine which
   ; sets environmental variables and compiles

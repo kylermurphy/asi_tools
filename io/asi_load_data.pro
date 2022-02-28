@@ -19,16 +19,22 @@
 ;     
 ; :Example:
 ; 
-;     Download Gillam REGO data
+;     Download/load Gillam REGO data
 ;     dat = asi_load_data('gill_rego', '2015-02-02/10:00:00', 40, /minutes)
 ;     dat = asi_load_data('gill', '2015-02-02/10:00:00', 40, /minutes, /rego)
+;     
+;     Download/load Gillam THEMIS and Gillam REGO data
+;     dat = asi_load_data(['gill_themis','gill_rego'], '2018-08-01/06:00:00', 2, /minutes)
 ;  
 ;     
 ;     
 ; :Params:
 ;    site - ASI to download and load data, sites can be passed
 ;            as "site_array" to define the array they are
-;            associated with, e.g., 'gill_rego'
+;            associated with, e.g., "gill_rego"
+;           Multiple sites can be passed using a string array. 
+;            In this case sites should be passed as "site_array" and
+;            the keywords THEMIS, REGO, RGB, BLUELINE are ignored. 
 ;    t0 - Start time for loading. These can be string 'YYYY-MM-DD/hh:mm:ss' 
 ;            or double (seconds; since 1970).  
 ;    dt - Amount of time to load, defaults to hours.
@@ -91,7 +97,7 @@ function asi_load_data, $
   themis=themis, $ ; load from THEMIS array
   rego=rego, $ ; load from REGO array
   rgb=rgb, $ ; load from TREX RGB array
-  blue_line=blue_line, $ ; load from TREX blue line
+  blueine=blueline, $ ; load from TREX blue line
   path_only=path_only, $ ; return only the paths to the local files
   meta_data=meta_data, $ ; return the meta data along with the data
   no_load=no_load, $ ;don't load the data, only return paths and skymap
@@ -99,7 +105,28 @@ function asi_load_data, $
 
   asi_init
   
-  ;can add a for loop here if site is an array
+  ; if multiple sites are passed return 
+  ;a structure of strucuters where each
+  ;structure within the main is the data
+  ;for that station
+  
+  if site.length gt 1 then begin
+    r_str = { }
+    for i=0L, site.length-1 do begin
+      asi_loading = string(site[i])
+      
+      print, asi_loading
+      
+      r_dat=asi_load_data(asi_loading, t0, dt, $
+        minutes=minutes, hours=hours, $
+        path_only=path_only, meta_data=meta_data, no_load=no_load, $
+        _EXTRA=ex)
+        
+      r_str = create_struct(r_str,asi_loading,r_dat)  
+    endfor
+    
+    return, r_str
+  endif
   
   ;make sure we use the 4 character code
   asi_site = strmid(strlowcase(site),0,4)
@@ -114,6 +141,8 @@ function asi_load_data, $
     else if array eq 'rgb' then rgb=1 $
     else if array eq 'blueline' then blueline=1
   endif
+  
+  stop
   
   ;create a time_series from t0 and dt
   ; if no keyword set assume hours
@@ -324,6 +353,14 @@ function asi_load_data, $
             asi_is_north_up:asi_is_north_up, asi_is_west_left:asi_is_west_left}
   
   if keyword_set(meta_data) then r_dat = create_struct(r_dat,'asi_meta',meta)
+  
+  ; Null the array keywords
+  ;in case loading multiple stations
+  themis = !Null
+  rego = !Null
+  rgb = !Null
+  blue_line = !Null
+  
 
   return, r_dat
   
