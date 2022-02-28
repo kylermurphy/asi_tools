@@ -10,6 +10,10 @@
 ;     
 ;     Download and loads 1 minute PGM files. 
 ;     
+;     Relies on:
+;     asi_download_skymap( )
+;     asi_skymap_geomag( ) 
+;     
 ; :Calling Sequence:
 ;     dat = asi_load_data(site, t0, dt)
 ;     
@@ -55,7 +59,7 @@
 ;     array - themis
 ;     
 ; :Return:
-;     A structure containingg the images downloaded/loaded for the specified time,
+;     A structure containing the images downloaded/loaded for the specified time,
 ;     the paths to the images, the imager skymap, imager rotation, and metadata
 ;     
 ;     Imager rotation
@@ -292,6 +296,7 @@ function asi_load_data, $
   ; don't return anything  
   endif else begin
     skymap = -1
+    i_rot = -1
     asi_is_north_up = -1
     asi_is_west_left = -1
   endelse
