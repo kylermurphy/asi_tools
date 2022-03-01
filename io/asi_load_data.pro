@@ -337,7 +337,8 @@ function asi_load_data, $
   
   if keyword_set(no_load) then begin
     return, {asi_paths:paths, asi_skymap:skymap, asi_rotate:i_rot, $
-      asi_is_north_up:asi_is_north_up, asi_is_west_left:asi_is_west_left}
+      asi_is_north_up:asi_is_north_up, asi_is_west_left:asi_is_west_left, $
+      asi_x:n_elements(skymap.full_row[*,0]), asi_y:n_elements(skymap.full_row[0,*])}
   endif
                  
   ; read in the PGM files
