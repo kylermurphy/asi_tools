@@ -1,6 +1,9 @@
-; need to do an minimum elvations check
+; need to do an minimum elvation check
 
 ; need to make -1 position values nan
+
+; should this work on only rotated data? 
+; probably yes.
 
 function asi_peakogram, $
   site, $ ; ASI site to load/download
@@ -75,7 +78,7 @@ function asi_peakogram, $
   ; the closest longitdue in the x direction 
   ; that is within the longitude threshold
   ; points outside this are set -1 in the x position
-  x_pos = intarr(n_longitudes,asi_paths.asi_y,n_longitudes)
+  x_pos = intarr(n_longitudes,asi_paths.asi_y)
   y_pos = x_pos
   for j=0L, n_lon-1 do begin
     for i=0L, asi_paths.asi_y-1 do begin
@@ -89,15 +92,62 @@ function asi_peakogram, $
   ; individual files are processed to reduce
   ; the amount of data loaded
   paths = asi_paths.asi_paths
-  pk_dat = []
+  pk_temp = []
   for i=0L, paths.length-1 do begin
-    pk_temp = asi_peakogram_getpks(paths[i], x_pos=x_pos, y_pos=y_pos, $
+    pk_val = asi_peakogram_getpks(paths[i], x_pos=x_pos, y_pos=y_pos, $
       n_longitudes=n_lon, n_peaks=n_pks, $
       px_smooth=px_smth, moon=moon)
-    pk_dat = [pk_dat,pk_temp]
+    pk_temp = [pk_val,pk_temp]
   endfor
   
+  ; unravel the data
+  ; pk_dat stores the peak position
+  ; and amplitude
+  ; [img,lon_peak,n_peaks,2]
+  ; the last dimension is position
+  pk_dat  = []
+  pk_time_arr = []
+  for i=0L, pk_temp.length-1 do begin
+    pk_dat  = [pk_dat,pk_temp[i].pk_dat]
+    pk_time_arr = [pk_time_arr, pk_temp[i].t_th]
+  endfor
   
+  ; get data in sensible arrays
+  pk_lat_arr = fltarr(pk_time_arr.length,n_lon,n_pks)
+  pk_lon_arr = pk_lat_arr
+  pk_pos_arr = reform(pk_dat[*,*,*,0],pk_time_arr.length,n_lon,n_pks)
+  pk_amp_arr = reform(pk_dat[*,*,*,1],pk_time_arr.length,n_lon,n_pks)
+  
+  for i=0L, n_lon-1 do begin
+    for j=0L, n_pks-1 do begin
+      pos_temp = pk_pos_arr[*,i,j]
+      lat_temp = lat_arr[x_pos[i,pos_temp],y_pos[i,pos_temp]]
+      lon_temp = lon_arr[x_pos[i,pos_temp],y_pos[i,pos_temp]]
+      
+      pk_lat_arr[*,i,j] = lat_temp
+      pk_lon_arr[*,i,j] = lon_temp
+    endfor
+  endfor
+  
+  ;trex_imager_readfile, paths, img, meta, count=img_c
+  
+  !p.multi=[0,1,1]
+  window, 0, xsize=1500, ysize = 400
+  
+  date_min = min(pk_time_arr,max=date_max,/nan)
+  tk = time_ticks([date_min,date_max], offset)
+  col_arr = bytscl(pk_amp_arr)
+  
+  loadct,0,/silent
+  plot,[date_min,date_max],[64,70], /nodata, xrange=[date_min,date_max], $
+    xtickname=tk.xtickname, xtickv=tk.xtickv+offset, xticks=tk.xticks, xminor=tk.xminor
+  loadct, 65, /silent
+  for i=0L, n_lon-1 do begin
+    for j=0L, n_pks-1 do begin
+      plots, pk_time_arr, pk_lat_arr[*,i,j], color=col_arr[*,i,j], psym=sym(1) 
+    endfor
+  endfor
+    
   
   stop
   
@@ -108,6 +158,7 @@ end
 ;MAIN
 ;test
 
-dat = asi_peakogram('gill_themis', '2011-04-09/04:24:00', 6, /minutes,n_longitude=1)
+;dat = asi_peakogram('gill_themis', '2011-04-09/04:24:00', 6, /minutes,n_longitude=1)
+dat = asi_peakogram('fykn_themis', '2008-02-15/08:00:00', 120, /minutes,n_longitude=1)
 
 end
