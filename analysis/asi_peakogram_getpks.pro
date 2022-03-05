@@ -5,13 +5,16 @@ function asi_peakogram_getpks, $
   n_longitudes = n_longitudes, $ ; number of longitudes 
   n_peaks = n_peaks, $ ; number of peaks to search for
   px_smooth=px_smooth, $ ; number of pixels to smooth over
-  moon=moon ; remove the moon if set
+  moon=moon, $ ; remove the moon if set
+  mask=mask ; apply a mask to the image 
   
   
   if not keyword_set(x_pos) or not keyword_set(y_pos) $
     or not keyword_set(n_peaks) or not keyword_set(n_longitudes) $
     or not keyword_set(px_smooth) $
     then message, 'Error - keywords x_pos, y_pos, n_peaks, px_smooth must all be set.'
+  
+  if keyword_set(mask) then mask=mask else mask=0
   
   x_temp = x_pos
   y_temp = y_pos
@@ -28,6 +31,8 @@ function asi_peakogram_getpks, $
   x_sz = im_sz[1]
   y_sz = im_sz[2]
   
+  
+  
   ; array of data to return
   ; number of images, longitude slices, peaks
   ; last two dimesions are the pk pos
@@ -41,6 +46,9 @@ function asi_peakogram_getpks, $
   for i=0L, img_c-1 do begin
     ; smooth the image
     im_temp = smooth(img[*,*,i],px_temp,/edge_truncate,/nan)
+    ; apply the image mask
+    if keyword_set(mask) then im_temp = im_temp*mask
+    
     ; loop through the longitude slice
     for j=0L, nlon_temp-1 do begin
       ; get the longitude slices of data

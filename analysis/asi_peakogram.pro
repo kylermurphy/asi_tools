@@ -18,6 +18,7 @@ function asi_peakogram, $
   longitude_tresh = longitude_thresh, $ ; threshold for longitude difference, default 0.2
   px_smooth = px_smooth, $ ; smoothing of image, default is 5 
   moon = moon, $ ; remove moon
+  min_elevation = min_elevation, $ ; minimum elvation of plot, default is 10
   add_tplot = add_tplot, $ ; add an approximate tplot
   _EXTRA=ex
   
@@ -41,12 +42,20 @@ function asi_peakogram, $
     n_pks = 2
   endif
   
-  if keyword_set(longitude_thresh) then lon_min = lonigtude_thresh else lon_min = 0.2
-  if keyword_set(px_smooth) then px_smth = px_smooth else px_smth = 5
-  if keyword_set(moon) then moon = 1 else moon = 0
+  if keyword_set(longitude_thresh) then lon_min=lonigtude_thresh else lon_min=0.2
+  if keyword_set(px_smooth) then px_smth=px_smooth else px_smth=5
+  if keyword_set(moon) then moon=1 else moon=0
+  if keyword_set(min_elevation) then min_elevation=min_elevation else min_elevation=10
   
   ;get skymap and paths to data
+  dprint, dlevel=0, 'Loading Skymap and retreiving paths/data for '+site
   asi_paths = asi_load_data(site,t0,dt,minutes=minutes,hours=hours, no_load=1,_EXTRA=ex)
+    
+  ;create elvation mask
+  gd_ele = where(asi_paths.asi_skymap.full_elevation gt min_elevation, ele_c)
+  ele_mask = fltarr(asi_paths.asi_x,asi_paths.asi_y)
+  ele_mask[*] = !values.f_nan
+  if ele_c gt 0 then ele_mask[gd_ele]=1
   
   
   ;determine what longitudes to use
@@ -56,6 +65,7 @@ function asi_peakogram, $
   ; sections
   ;otherwise use the longitudes defined by the user 
   ; or the longitude of the center of the FOV
+  
   if keyword_set(n_longitudes) and size(n_longitudes,/ type) eq 2  then begin
     n_lon = n_longitudes
     pk_pos = 1./(n_lon+1)
@@ -82,6 +92,9 @@ function asi_peakogram, $
   ; the closest longitdue in the x direction 
   ; that is within the longitude threshold
   ; points outside this are set -1 in the x position
+  
+  dprint, dlevel=0, 'Calculating longitude slices for '+site
+  
   x_pos = intarr(n_longitudes,asi_paths.asi_y)
   y_pos = x_pos
   for j=0L, n_lon-1 do begin
@@ -95,12 +108,15 @@ function asi_peakogram, $
   ; loop through the paths and find the peaks
   ; individual files are processed to reduce
   ; the amount of data loaded
+  
+  dprint, dlevel=0, 'Finding peaks for '+site
+  
   paths = asi_paths.asi_paths
   pk_temp = []
   for i=0L, paths.length-1 do begin
     pk_val = asi_peakogram_getpks(paths[i], x_pos=x_pos, y_pos=y_pos, $
       n_longitudes=n_lon, n_peaks=n_pks, $
-      px_smooth=px_smth, moon=moon)
+      px_smooth=px_smth, moon=moon, mask=ele_mask)
     pk_temp = [pk_val,pk_temp]
   endfor
   
@@ -164,9 +180,9 @@ end
 
 ;MAIN
 ;test
-
+fixplot
 ;dat = asi_peakogram('gill_themis', '2011-04-09/04:24:00', 6, /minutes,n_longitude=1)
-dat = asi_peakogram('fykn_themis', '2008-02-15/08:00:00', 120, /minutes,n_longitude=1)
-dat = asi_peakogram('gill_rego', '2015-02-02/10:00:00', 60, /minutes,n_longitude=1)
+;dat = asi_peakogram('fykn_themis', '2008-02-15/08:00:00', 120, /minutes,n_longitude=1)
+dat = asi_peakogram('gill_rego', '2015-02-02/10:00:00', 60, /minutes,n_longitude=1, min_elevation=25)
 
 end
