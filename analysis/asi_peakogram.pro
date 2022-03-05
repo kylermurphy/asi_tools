@@ -24,6 +24,10 @@ function asi_peakogram, $
   
   asi_init
   
+  ; make the data loading quiet
+  dprint, getdebug=debug0
+  dprint, setdebug=0
+  
   if keyword_set(alt) then alt = alt else alt = 1
   if alt gt 2 or alt lt 0 then begin
     print, 'alt must be 0, 1, or 2'
@@ -148,7 +152,10 @@ function asi_peakogram, $
     endfor
   endfor
     
+  ; change back to nominal dprint level
+  dprint, setdebug=debug0
   
+
   stop
   
 end
@@ -160,5 +167,6 @@ end
 
 ;dat = asi_peakogram('gill_themis', '2011-04-09/04:24:00', 6, /minutes,n_longitude=1)
 dat = asi_peakogram('fykn_themis', '2008-02-15/08:00:00', 120, /minutes,n_longitude=1)
+dat = asi_peakogram('gill_rego', '2015-02-02/10:00:00', 60, /minutes,n_longitude=1)
 
 end
