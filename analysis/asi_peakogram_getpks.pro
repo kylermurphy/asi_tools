@@ -1,3 +1,68 @@
+;+
+;+
+; :Function:
+;     asi_peakogram_getpks
+;
+; :Description:
+;     
+;     Find the locations of peak brigthness along
+;     a given (x,y) slice through an imager. 
+;     
+;     The imager data is loaded from the paths
+;     argument. 
+;     
+; :Calling Sequence:
+;     dat = asi_load_data(site, t0, dt)
+;     
+; :Example:
+; 
+;     Download/load Gillam REGO data
+;     dat = asi_load_data('gill_rego', '2015-02-02/10:00:00', 40, /minutes)
+;     dat = asi_load_data('gill', '2015-02-02/10:00:00', 40, /minutes, /rego)
+;     
+;     Download/load Gillam THEMIS and Gillam REGO data
+;     dat = asi_load_data(['gill_themis','gill_rego'], '2018-08-01/06:00:00', 2, /minutes)
+;          
+; :Params:
+;    paths - the paths to the asi images to load
+;
+; :Keywords:
+;    i_rot - the amount the image should be rotated to match
+;            this is used so that the orientatio of all arrays
+;            here match that in asi_peakogram
+;    x_pos - the x positions to search for peaks
+;    y_pos - the y positions to search for peaks
+;    
+;    ?_pos - two dimensional array, first dimension defines number
+;            of slices, second dimension defines positions
+;     
+;    n_longitudes - number of longitudes/slices to search along, 
+;            should match the number of elements in the first 
+;            dimension of x_pos and y_pos
+;    n_peaks - the number of peaks to return
+;    px_smooth - the pixel size to smooth the image
+;    moon - flag to remove the mon
+;    mask - mask to apply each image loaded
+;    
+; :Return:
+;    
+;    pk_dat - 3 dimensional array
+;             0 - time dimension
+;             1 - number of slices searched, n_longitudes
+;             2 - peak position and peak amplitude
+;             
+;             peak position is the index of the x_pos and
+;             y_pos arrays where peaks were found
+;             
+;             peak amplitude is the amplitude of the peak
+;     
+;    t_th - a time double of the time of each image 
+;
+; :Author: krmurphy - kylemurphy.spacephys@gmail.com
+;
+; :Modification:
+;
+;-
 function asi_peakogram_getpks, $
   paths, $ ; path to asi data
   i_rot = i_rot, $ ; what to rotate the loaded images by
