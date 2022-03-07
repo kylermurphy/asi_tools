@@ -1,3 +1,32 @@
+;+
+; :Function:
+; 
+;     asi_skymap_rotate
+;
+; :Description:
+;     
+;     Rotate a skymap by i_rot, which defines
+;     the direction in rotate( ) 
+;
+; :Calling Sequence:
+;     dat = asi_skymap_rotate(skymap_file, i_rot)
+;
+;
+; :Params:
+;
+;    skymap - a skymap 
+;    i_rot - an integer specifying the roation direction
+;            for roate( )
+;
+; :Return:
+; 
+;     A rotated skymap
+;
+; :Author: krmurphy - kylemurphy.spacephys@gmail.com
+;
+; :Modification:
+;
+;-
 function asi_skymap_rotate, skymap, i_rot
 
   asi_init
