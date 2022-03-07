@@ -70,7 +70,6 @@ function asi_skymap_rotate, skymap, i_rot
       endfor
     ; if the tag is an aray or a 1D array leave as it
     endif else if tag_s[0] eq 1 or tag_s[0] eq 0 then begin
-      print, tags[i]
       tag_temp = skymap.(i)
     endif else message, 'Cannot handle tags of dimension > 3'
     
@@ -79,20 +78,5 @@ function asi_skymap_rotate, skymap, i_rot
 
 
   return, sky_temp
-
-end
-
-
-
-; MAIN
-; test
-
-
-restore, 'D:\data\asi_tools\REGO\skymaps\gill\rego_skymap_gill_geomag_20180801.sav',/verbose
-pos = asi_skymap_pos(skymap)
-help, pos
-skymap = asi_skymap_rotate(skymap, pos.i_rot)
-pos = asi_skymap_pos(skymap)
-help, pos
 
 end

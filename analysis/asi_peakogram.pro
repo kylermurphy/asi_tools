@@ -114,10 +114,12 @@ function asi_peakogram, $
   paths = asi_paths.asi_paths
   pk_temp = []
   for i=0L, paths.length-1 do begin
-    pk_val = asi_peakogram_getpks(paths[i], i_rot=asi_paths.skymap_rotated_by, x_pos=x_pos, y_pos=y_pos, $
+    pk_val = asi_peakogram_getpks(paths[i], $
+      i_rot=asi_paths.skymap_rotated_by, x_pos=x_pos, y_pos=y_pos, $
       n_longitudes=n_lon, n_peaks=n_pks, $
-      px_smooth=px_smth, moon=moon, mask=ele_mask)
-    pk_temp = [pk_val,pk_temp]
+      px_smooth=px_smth, moon=moon, mask=ele_mask, $
+      _EXTRA=ex)
+    pk_temp = [pk_temp,pk_val]
   endfor
   
   ; unravel the data
@@ -149,30 +151,67 @@ function asi_peakogram, $
     endfor
   endfor
   
-  ;trex_imager_readfile, paths, img, meta, count=img_c
   
-  !p.multi=[0,1,1]
-  window, 0, xsize=1500, ysize = 400
+ 
+  if keyword_set(add_tplot) then begin
   
-  date_min = min(pk_time_arr,max=date_max,/nan)
-  tk = time_ticks([date_min,date_max], offset)
-  col_arr = bytscl(pk_amp_arr)
-  
-  loadct,0,/silent
-  plot,[date_min,date_max],[64,70], /nodata, xrange=[date_min,date_max], $
-    xtickname=tk.xtickname, xtickv=tk.xtickv+offset, xticks=tk.xticks, xminor=tk.xminor
-  loadct, 65, /silent
-  for i=0L, n_lon-1 do begin
-    for j=0L, n_pks-1 do begin
-      plots, pk_time_arr, pk_lat_arr[*,i,j], color=col_arr[*,i,j], psym=sym(1) 
-    endfor
-  endfor
+    ; sort the time array 
+    t_sort = sort(pk_time_arr)
     
+    ; loop through each long slice
+    for i=0L, n_lon-1 do begin
+      ; get the latitdues positions
+      ;of each longitude slice
+      lats = asi_paths.asi_skymap.CENTER_MAG_LATITUDE[*,*,alt]*ele_mask
+      lats = lats[x_pos[i,*],y_pos[i,*]]
+      
+      ; find the lat min and max
+      ;values along each slice
+      lat_min=min(lats,max=lat_max,/nan)
+      lat_bin=0.2
+      
+      lat_min = floor(lat_min)
+      lat_max = ceil(lat_max)
+      
+      ; create an array of latitudes
+      lat_arr = findgen((lat_max-lat_min)/lat_bin)*lat_bin+lat_min
+      
+      ; create an array that can store the 
+      ;intensity of each peak as close to 
+      ;the lat array as possible
+      plot_arr = fltarr(pk_time_arr.length, lat_arr.length)
+      
+      ; for each set of peaks find the position 
+      ;in the plot_arr that corresponds to the
+      ;peak and fill with the peak amplitude
+      for j=0L, n_pks-1 do begin
+        lat_pos = pk_lat_arr[t_sort,i,j]
+        lat_ind = round((lat_pos-lat_min)/lat_bin)        
+        plot_arr[indgen(lat_pos.length),lat_ind] = pk_amp_arr[t_sort,i,j]
+      endfor  
+      
+      ;store the tplot data
+      d = {x:pk_time_arr[t_sort], y:plot_arr, v:lat_arr}
+      data_att = {coord_sys:'Geomagnetic Latitude', units:'Counts/Intensity/Brightness'}
+      dlimits = {SPEC:1,LOG:0, DATA_ATT:data_att, $
+            YTITLE:'Latitude!CLongitude Slice: '+string(pk_lon[i],format='(F7.2)'), $
+            ZTITLE:'Intensity', $
+            ZLOG:1, X_NO_INTERP:1, Y_NO_INTERP:1, $
+            OVERLAY:0}
+      limits = {ZLOG:1, YLOG:1, YRANGE:[lat_min,lat_max], YSTYLE:1}
+      
+      name = asi_paths.asi_site+'_'+asi_paths.asi_array+'_lon_'+strtrim(i,2)
+      
+      store_data,name, data=d, dlimits=dlimits, limits=limits
+    endfor
+  endif
+
   ; change back to nominal dprint level
   dprint, setdebug=debug0
-  
-
-  stop
+ 
+  return, {asi_site:asi_paths.asi_site, asi_array:asi_paths.asi_array, pk_lon_val:pk_lon, $
+    pk_lat:pk_lat_arr,pk_lon:pk_lon_arr, pk_amp:pk_amp_arr, $
+    pk_pos:pk_pos_arr, x_pos:x_pos, y_pos:y_pos }
   
 end
 
@@ -182,7 +221,7 @@ end
 ;test
 fixplot
 ;dat = asi_peakogram('gill_themis', '2011-04-09/04:24:00', 6, /minutes,n_longitude=1)
-dat = asi_peakogram('fykn_themis', '2008-02-15/08:00:00', 120, /minutes,n_longitude=1)
-;dat = asi_peakogram('gill_rego', '2015-02-02/10:00:00', 60, /minutes,n_longitude=1, min_elevation=25)
+;dat = asi_peakogram('fykn_themis', '2008-02-15/08:00:00', 120, /minutes,n_longitude=2, /add_tplot)
+dat = asi_peakogram('gill_rego', '2015-02-02/10:00:00', 60, /minutes,n_longitude=1, min_elevation=25, /add_tplot)
 
 end

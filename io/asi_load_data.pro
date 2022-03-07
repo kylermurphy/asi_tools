@@ -321,10 +321,11 @@ function asi_load_data, $
   endelse
 
   ; return only paths
-  if keyword_set(path_only) then return, {asi_paths:paths}
+  if keyword_set(path_only) then return, {asi_site:asi_site, asi_array:chk_site.array, asi_paths:paths}
   
   if keyword_set(no_load) then begin
-    return, {asi_paths:paths, asi_skymap:skymap, asi_rotate:asi_pos.i_rot, $
+    return, {asi_site:asi_site, asi_array:chk_site.array, $
+      asi_paths:paths, asi_skymap:skymap, asi_rotate:asi_pos.i_rot, $
       asi_is_north_up:asi_pos.asi_is_north_up, asi_is_west_left:asi_pos.asi_is_west_left, $
       asi_x:n_elements(skymap.full_row[*,0]), asi_y:n_elements(skymap.full_row[0,*]), $
       skymap_is_rotated:skymap_is_rotated, skymap_rotated_by:skymap_rotated_by}
