@@ -1,3 +1,40 @@
+;+
+; :Function:
+;     asi_skymap_pos
+;
+; :Description:
+;     Determine the position and orientation of the 
+;     loaded and skymap and therefore any images
+;     for the skymap station that will be loaded. 
+;     
+;     Determines if north is up and if west is left. 
+;     
+;     Determines the rotation required so that both
+;     the skymap and images will have north up and 
+;     west left.
+;     
+; :Calling Sequence:
+;     dat = asi_skymap_pos(skymap_file)
+;
+;
+; :Params:
+;    
+;    skymap - a geomagnetic skymap produced by asi_skymap_geomag() 
+;    
+; :Return:
+;     A structure containing i_rot, asi_is_north_up, asi_is_west_left
+;     
+;     i_rot - the integer to be passed to rotate() which
+;     rotate the images so that north is up and west is left.
+;     
+;     asi_is_north_up - 1 (yes), 0 (no)
+;     asi_is_west_left - 1 (yes), 0 (no)
+;
+; :Author: krmurphy - kylemurphy.spacephys@gmail.com
+;
+; :Modification:
+;
+;-
 function asi_skymap_pos, skymap
 
   asi_init
