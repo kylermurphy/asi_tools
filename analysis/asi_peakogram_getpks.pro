@@ -72,7 +72,8 @@ function asi_peakogram_getpks, $
   n_peaks = n_peaks, $ ; number of peaks to search for
   px_smooth=px_smooth, $ ; number of pixels to smooth over
   moon=moon, $ ; remove the moon if set
-  mask=mask ; apply a mask to the image 
+  mask=mask, $ ; apply a mask to the image
+  verbose=verbose ; plot some stuff for debugging 
   
   
   if not keyword_set(i_rot) or not keyword_set(x_pos) or not keyword_set(y_pos) $
@@ -105,8 +106,10 @@ function asi_peakogram_getpks, $
   pk_dat = fltarr(img_c,nlon_temp,npk_temp,2)
   pk_dat[*] = !values.f_nan
   
-  window,0
-  !p.multi=[0,2,1]
+  if keyword_set(verbose) then begin
+    window,0
+    !p.multi=[0,2,1]
+  endif
   
   ; loop through the images and find the peaks
   for i=0L, img_c-1 do begin
@@ -147,14 +150,16 @@ function asi_peakogram_getpks, $
         pk_dat[i,j,0:tot_pk-1,1] = pk_amp
       endelse
       
-      plot,[0,x_sz-1],[0,y_sz-1],/nodata,/isotropic
-      tvscale, alog10(im_temp),/overplot
-      plots, x_temp[j,*],y_temp[j,*], psym=3
-      plots, x_temp[j,pk_pos[0:npk_temp-1]], y_temp[j,pk_pos[0:npk_temp-1]], psym = 4
+      if keyword_set(verbose) then begin
+        plot,[0,x_sz-1],[0,y_sz-1],/nodata,/isotropic
+        tvscale, alog10(im_temp),/overplot
+        plots, x_temp[j,*],y_temp[j,*], psym=3
+        plots, x_temp[j,pk_pos[0:npk_temp-1]], y_temp[j,pk_pos[0:npk_temp-1]], psym = 4
       
-      plot, lon_line
-      plots, pk_pos, lon_line[pk_pos], psym=2
-      wait,0.01
+        plot, lon_line
+        plots, pk_pos, lon_line[pk_pos], psym=2
+        wait,0.01
+      endif
     endfor
   endfor
   
