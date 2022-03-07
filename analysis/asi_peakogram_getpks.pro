@@ -1,5 +1,6 @@
 function asi_peakogram_getpks, $
   paths, $ ; path to asi data
+  i_rot = i_rot, $ ; what to rotate the loaded images by
   x_pos = x_pos, $ ; x position of image to search along for peaks
   y_pos = y_pos, $ ; y position of image to search along for peaks
   n_longitudes = n_longitudes, $ ; number of longitudes 
@@ -9,10 +10,10 @@ function asi_peakogram_getpks, $
   mask=mask ; apply a mask to the image 
   
   
-  if not keyword_set(x_pos) or not keyword_set(y_pos) $
+  if not keyword_set(i_rot) or not keyword_set(x_pos) or not keyword_set(y_pos) $
     or not keyword_set(n_peaks) or not keyword_set(n_longitudes) $
     or not keyword_set(px_smooth) $
-    then message, 'Error - keywords x_pos, y_pos, n_peaks, px_smooth must all be set.'
+    then message, 'Error - keywords i_rot, x_pos, y_pos, n_peaks, px_smooth must all be set.'
   
   if keyword_set(mask) then mask=mask else mask=0
   
@@ -44,8 +45,10 @@ function asi_peakogram_getpks, $
   
   ; loop through the images and find the peaks
   for i=0L, img_c-1 do begin
+    ; rotate the image
+    im_temp = rotate(reform(img[*,*,i]),i_rot)
     ; smooth the image
-    im_temp = smooth(img[*,*,i],px_temp,/edge_truncate,/nan)
+    im_temp = smooth(im_temp,px_temp,/edge_truncate,/nan)
     ; apply the image mask
     if keyword_set(mask) then im_temp = im_temp*mask
     

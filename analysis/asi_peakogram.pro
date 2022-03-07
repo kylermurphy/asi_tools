@@ -48,7 +48,7 @@ function asi_peakogram, $
   if keyword_set(min_elevation) then min_elevation=min_elevation else min_elevation=10
   
   ;get skymap and paths to data
-  dprint, dlevel=0, 'Loading Skymap and retreiving paths/data for '+site
+  dprint, dlevel=0, 'Loading Skymap and retreiving data and paths for '+site
   asi_paths = asi_load_data(site,t0,dt,minutes=minutes,hours=hours, no_load=1,_EXTRA=ex)
     
   ;create elvation mask
@@ -114,7 +114,7 @@ function asi_peakogram, $
   paths = asi_paths.asi_paths
   pk_temp = []
   for i=0L, paths.length-1 do begin
-    pk_val = asi_peakogram_getpks(paths[i], x_pos=x_pos, y_pos=y_pos, $
+    pk_val = asi_peakogram_getpks(paths[i], i_rot=asi_paths.skymap_rotated_by, x_pos=x_pos, y_pos=y_pos, $
       n_longitudes=n_lon, n_peaks=n_pks, $
       px_smooth=px_smth, moon=moon, mask=ele_mask)
     pk_temp = [pk_val,pk_temp]
@@ -182,7 +182,7 @@ end
 ;test
 fixplot
 ;dat = asi_peakogram('gill_themis', '2011-04-09/04:24:00', 6, /minutes,n_longitude=1)
-;dat = asi_peakogram('fykn_themis', '2008-02-15/08:00:00', 120, /minutes,n_longitude=1)
-dat = asi_peakogram('gill_rego', '2015-02-02/10:00:00', 60, /minutes,n_longitude=1, min_elevation=25)
+dat = asi_peakogram('fykn_themis', '2008-02-15/08:00:00', 120, /minutes,n_longitude=1)
+;dat = asi_peakogram('gill_rego', '2015-02-02/10:00:00', 60, /minutes,n_longitude=1, min_elevation=25)
 
 end
