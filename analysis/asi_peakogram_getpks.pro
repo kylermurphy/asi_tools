@@ -46,10 +46,11 @@
 ;    
 ; :Return:
 ;    
-;    pk_dat - 3 dimensional array
+;    pk_dat - 4 dimensional array
 ;             0 - time dimension
 ;             1 - number of slices searched, n_longitudes
-;             2 - peak position and peak amplitude
+;             2 - number of peaks found
+;             3 - peak position and peak amplitude for each peak
 ;             
 ;             peak position is the index of the x_pos and
 ;             y_pos arrays where peaks were found
