@@ -1,10 +1,111 @@
-; need to do an minimum elvation check
-
-; need to make -1 position values nan
-
-; should this work on only rotated data? 
-; probably yes.
-
+;+
+; :Function:
+;     asi_peakogram
+;
+; :Description:
+;     Find peaks in brightness along fixed longitudes
+;     to identify the latitudinal motion of the aurora
+;     and compare motion at different latitudes. 
+;     
+;     Defaults to finding 2 peaks in brightness along
+;     a single geomagnetic longitude.
+;     
+;     Relies on:
+;     asi_load_data( ) 
+;
+; :Calling Sequence:
+;     dat = asi_peakogram('site_array', t0, dt)
+;     
+; :Example:
+; 
+;     Get peakogram for the Gillam THEMIS station from a single longitude
+;     dat = asi_peakogram('gill_themis', '2011-04-09/04:24:00', 6, /minutes,n_longitude=1)
+;     
+;     Get peakogram for the Gillam REGO station, consider only points with elevation
+;     greater then 25 degrees, add a tplot variable which shows the approximate 
+;     position and brightness of the peaks
+;     dat = asi_peakogram('gill_rego', '2015-02-02/10:00:00', 60, /minutes,n_longitude=1, min_elevation=25, /add_tplot)
+;
+; :Params:
+;    site - 4 character site followed by array name '????_array'
+;           array can be themis, rego, rgb, blueline
+;    t0 - Start time for loading. These can be string 'YYYY-MM-DD/hh:mm:ss'
+;           or double (seconds; since 1970).
+;    dt - Amount of time to load, defaults to hours when passed to asi_load_data( )
+;
+; :Keywords:
+;    minutes - specify dt in minutes when passed to asi_load_data( )
+;    hours - specify dt in hours when passed to asi_load_data( )
+;    alt - altitude to get asi coordinates from 
+;          0 - 90 km, 1 - 110 km, 2 - 150 km, defaults to 1 - 110 km
+;    n_peaks - number of peaks to search for along each longitude slice, default 2
+;    n_longitudes - number of longitude slices, default 1
+;    longitudes - specify the longitude slices to search along, if not set
+;                 the camera is divided into sections based on n_longitudes
+;    longitude_tresh - max difference when defining the longitude slices along the
+;                 y dimension of the camera. If the difference is larger this position
+;                 is ignored
+;    px_smooth - the number of pixels to smooth the asi image before searching for peaks
+;    moon - flag to remove the moon from the imager
+;    min_elevation - the minimum elevation of the camera to consider when searching for
+;           peaks, creates a 2D mask [img size x, img size y] values with good elevation
+;           are 1, all other are NaN
+;    add_tplot - add a tplot variable which approximates the location and brightness of 
+;                peaks for each longitude slice 
+;    
+;    _EXTRA - extra keywords that can be passed to asi_load_data( ) and asi_peakogram_getpks( )
+;             e.g., /verbose, /no_update, ,force_download, /no_download
+;     
+; :Defaults:
+;     dt - in hours
+;     alt - 110 km
+;     n_peaks - 2
+;     n_longitudes - 1
+;     longitude_thresh - 0.2
+;     px_smooth - 5
+;     min_elevation - 10
+;     
+; :Return:
+;     A structure containing the geomagnetic positions of the peaks in brightness
+;     for each longitude slice
+;     
+;     asi_site - site 
+;     asi_array - array
+;     pk_lon_val - geomagnetic longitude for each longitude slice
+;     pk_lat - geomagnetic latitude for each peak in brightness and longitude slice
+;              [time, n_longitude, n_peaks]
+;     pk_lon - geomagnetic longitude for each peak, same format as pk_lat
+;     pk_amp - amplitude of each peak, same format as pk_lat
+;     pk_pos - position along the longitude slice of each peak, same format as pk_lat
+;              this can be used with x_pos and y_pos to define peak position within the
+;              image pixel cooridantes
+;              
+;              x and y position for time zero, first longitude and first peak
+;              
+;              x_pkpos = x_pos[0,pk_pos[0,0,0]]
+;              y_pkpos = y_pos[0,pk_pos[0,0,0]]
+;              
+;     x_pos - the x position in the imager that defines the longitude slice
+;             [n_longitude, pixel]
+;     y_pos - the y position in the imager that defines the longitude slice
+;             [n_longitude, pixel]
+;             
+;             You can get the slice through the imager for defining the longitude slice using
+;             img_slice = asi_img[x_pos[0,*],y_pos[0.*]
+;             
+;             With the station skymap, x_pos and y_pos can be used to define the lat and lon
+;             of the slice
+;     n_lon - number of longitude slices
+;     n_pk - number of peaks 
+;     asi_x - image size of the asi in the x-direction
+;     asi_y - image size of the asi in the y-direction
+;              
+;     
+; :Author: krmurph1
+;
+; :Modification:
+;
+;-
 function asi_peakogram, $
   site, $ ; ASI site to load/download
   t0, $ ; star time for loading/downloading
@@ -29,7 +130,7 @@ function asi_peakogram, $
   dprint, getdebug=debug0
   dprint, setdebug=0
   
-  if keyword_set(alt) then alt = alt else alt = 1
+  if size(alt,/type) ne 0 then alt = alt else alt = 1
   if alt gt 2 or alt lt 0 then begin
     print, 'alt must be 0, 1, or 2'
     print, 'setting alt to 1 - 110 km'
@@ -209,9 +310,10 @@ function asi_peakogram, $
   ; change back to nominal dprint level
   dprint, setdebug=debug0
  
-  return, {asi_site:asi_paths.asi_site, asi_array:asi_paths.asi_array, pk_lon_val:pk_lon, $
-    pk_lat:pk_lat_arr,pk_lon:pk_lon_arr, pk_amp:pk_amp_arr, $
-    pk_pos:pk_pos_arr, x_pos:x_pos, y_pos:y_pos }
+  return, {asi_site:asi_paths.asi_site, asi_array:asi_paths.asi_array, $
+    pk_lon_val:pk_lon, pk_lat:pk_lat_arr,pk_lon:pk_lon_arr, $
+    pk_amp:pk_amp_arr, pk_pos:pk_pos_arr, n_lon:n_lon, n_pk:n_pks, $
+    x_pos:x_pos, y_pos:y_pos, asi_x:asi_paths.asi_x, asi_y:asi_paths.asi_y }
   
 end
 
