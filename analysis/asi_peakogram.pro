@@ -115,8 +115,8 @@ function asi_peakogram, $
   alt = alt, $ ; altitude to use, 0 - 90 km, 1 - 110 km, 2 - 150 km
   n_peaks = n_peaks, $ ; number of peaks to find, defaults to 2
   n_longitudes = n_longitudes, $ ; number of latitdues to use, defaults to 1
-  longitudes = longidutes, $ ; longitudes to use, defaults to center FOV
-  longitude_tresh = longitude_thresh, $ ; threshold for longitude difference, default 0.2
+  longitudes = longitudes, $ ; longitudes to use, defaults to center FOV
+  longitude_thresh = longitude_thresh, $ ; threshold for longitude difference, default 0.2
   px_smooth = px_smooth, $ ; smoothing of image, default is 5 
   moon = moon, $ ; remove moon
   min_elevation = min_elevation, $ ; minimum elvation of plot, default is 10
@@ -129,6 +129,74 @@ function asi_peakogram, $
   ; make the data loading quiet
   dprint, getdebug=debug0
   dprint, setdebug=0
+  
+  ; if multiple sites are passed return
+  ;a structure of strucuters where each
+  ;structure within the main is the data
+  ;for that station
+  
+  if site.length gt 1 then begin
+    r_str = { }
+    for i=0L, site.length-1 do begin
+      asi_loading = string(site[i])
+      
+      ;check if keywords are set 
+      ; if they are the same size as the number of asi's passed
+      ; then pass them in order with the asi loaded
+      ; if they aren't the same size pass the first element
+      ; if they haven't been set set the passed values to null
+      if size(alt,/type) eq 0 then alt_pass=!null $
+        else if n_elements(alt) eq site.length then alt_pass=alt[i] else alt_pass=alt[0]
+      
+      if size(n_peaks,/type) eq 0 then pks_pass=!null $
+        else if n_elements(n_peaks) eq site.length then pks_pass=n_peaks[i] else pks_pass=n_peaks[0]
+      
+      if size(n_longitudes,/type) eq 0 then nlon_pass=!null $
+        else if n_elements(n_longitudes) eq site.length then nlon_pass=n_longitudes[i] else nlon_pass=n_longitudes[0] 
+      
+      ; if longitudes has a similar size as asi_sites
+      ; pass that set of longitudes 
+      
+      ; this can be done two ways, via a list 
+      ; with the same number of elements as asi_sites
+      ; this allows different number of longitudes
+      ; for each station 
+      ; 
+      ; or via an array where the second dimension 
+      ; is the same length as asi_sites
+      
+      lon_sz = size(longitudes)
+      if lon_sz[-2] eq 11 and lon_sz[1] eq site.length then lon_pass=longitudes[i] $
+      else if lon_sz[0] eq 2 and lon_sz[2] eq site.length then lon_pass=reform(longitudes[*,i]) $
+        else if lon_sz[-2] eq 0 then lon_pass=!null else lon_pass=longitudes[0]
+      
+      if size(longitude_thresh,/type) eq 0 then thresh_pass=!null $
+        else if n_elements(longitude_thresh) eq site.length then thresh_pass=longitude_thresh[i] $
+        else thresh_pass=longitude_thresh[0]
+
+      if size(px_smooth,/type) eq 0 then px_pass=!null $
+        else if n_elements(px_smooth) eq site.length then px_pass=px_smooth[i] else px_pass=px_smooth[0]
+      
+      if size(moon,/type) eq 0 then m_pass=!null $
+        else if n_elements(moon) eq site.length then m_pass=moon[i] else m_pass=moon[0]   
+
+      if size(min_elevation,/type) eq 0 then ele_pass=!null $
+        else if n_elements(min_elevation) eq site.length then ele_pass=min_elevation[i] $ 
+        else ele_pass=min_elevation[0]
+      
+      ;get peaks
+      r_dat=asi_peakogram(asi_loading, t0, dt, minutes=minutes, hours=hours, $
+              alt=alt_pass, n_peaks=pk_pass, n_longitudes=nlon_pass, longitudes=lon_pass, $
+              px_smooth=px_pass, moon=m_pass, min_elevation=ele_pass, $
+              add_tplot=add_tplot, _EXTRA=ex)
+
+      r_str = create_struct(r_str,asi_loading,r_dat)
+    endfor
+
+    r_str = create_struct(r_str,'n_sites',site.length)
+
+    return, r_str
+  endif
   
   if size(alt,/type) ne 0 then alt = alt else alt = 1
   if alt gt 2 or alt lt 0 then begin
@@ -143,7 +211,7 @@ function asi_peakogram, $
     n_pks = 2
   endif
   
-  if keyword_set(longitude_thresh) then lon_min=lonigtude_thresh else lon_min=0.2
+  if keyword_set(longitude_thresh) then lon_min=longitude_thresh else lon_min=0.2
   if keyword_set(px_smooth) then px_smth=px_smooth else px_smth=5
   if keyword_set(moon) then moon=1 else moon=0
   if keyword_set(min_elevation) then min_elevation=min_elevation else min_elevation=10
@@ -196,7 +264,7 @@ function asi_peakogram, $
   
   dprint, dlevel=0, 'Calculating longitude slices for '+site
   
-  x_pos = intarr(n_longitudes,asi_paths.asi_y)
+  x_pos = intarr(n_lon,asi_paths.asi_y)
   y_pos = x_pos
   for j=0L, n_lon-1 do begin
     for i=0L, asi_paths.asi_y-1 do begin
@@ -213,14 +281,14 @@ function asi_peakogram, $
   dprint, dlevel=0, 'Finding peaks for '+site
   
   paths = asi_paths.asi_paths
-  pk_temp = []
+  pk_temp = list( )
   for i=0L, paths.length-1 do begin
     pk_val = asi_peakogram_getpks(paths[i], $
       i_rot=asi_paths.skymap_rotated_by, x_pos=x_pos, y_pos=y_pos, $
       n_longitudes=n_lon, n_peaks=n_pks, $
       px_smooth=px_smth, moon=moon, mask=ele_mask, $
       _EXTRA=ex)
-    pk_temp = [pk_temp,pk_val]
+    pk_temp.Add, pk_val
   endfor
   
   ; unravel the data
@@ -313,7 +381,7 @@ function asi_peakogram, $
   return, {asi_site:asi_paths.asi_site, asi_array:asi_paths.asi_array, $
     pk_lon_val:pk_lon, pk_lat:pk_lat_arr,pk_lon:pk_lon_arr, $
     pk_amp:pk_amp_arr, pk_pos:pk_pos_arr, n_lon:n_lon, n_pk:n_pks, $
-    x_pos:x_pos, y_pos:y_pos, asi_x:asi_paths.asi_x, asi_y:asi_paths.asi_y }
+    x_pos:x_pos, y_pos:y_pos, asi_x:asi_paths.asi_x, asi_y:asi_paths.asi_y, asi_paths:paths}
   
 end
 
@@ -324,6 +392,13 @@ end
 fixplot
 ;dat = asi_peakogram('gill_themis', '2011-04-09/04:24:00', 6, /minutes,n_longitude=1)
 ;dat = asi_peakogram('fykn_themis', '2008-02-15/08:00:00', 120, /minutes,n_longitude=2, /add_tplot)
-dat = asi_peakogram('gill_rego', '2015-02-02/10:00:00', 60, /minutes,n_longitude=1, min_elevation=25, /add_tplot)
+;dat = asi_peakogram('gill_rego', '2015-02-02/10:00:00', 60, /minutes,n_longitude=1, min_elevation=25, /add_tplot)
+
+;dat = asi_peakogram(['snkq_themis','gill_rego','fsim_themis'],'2015-02-02/10:00:00', 60, $
+;  alt=[0,1,1], n_peaks=[3,2,1], n_longitudes=[7,8,9], longitudes=list([45,5],[22],[12]), $
+;  px_smooth=[5,10,11], moon=[0,1,1], min_elevation=[25,10,19])
+
+;dat = asi_peakogram(['snkq_themis','gill_rego','fsim_themis'],'2015-02-03/03:18:00', 42, /minutes, /add_tplot, /verbose)
+dat = asi_peakogram(['gill_themis','fsmi_themis','fsim_themis','fykn_themis'],'2010-02-16/07:00:00', 45, /minutes, /add_tplot, /verbose)
 
 end

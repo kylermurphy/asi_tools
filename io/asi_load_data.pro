@@ -134,6 +134,9 @@ function asi_load_data, $
       r_str = create_struct(r_str,asi_loading,r_dat)  
     endfor
     
+    ; add the number of site returned/loaded
+    r_str = create_struct(r_str,'n_sites',site.lenght)
+    
     return, r_str
   endif
   
