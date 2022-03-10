@@ -81,9 +81,10 @@ function asi_moon_mask, asi_img, outlier=outlier
   ; use the outlying pixels to grow the region
   new_roi_pixels = region_grow(im_min, roi_pixels, stddev_multiplier=1.5, all_neighbors=1)
   ; use the new region to define the moon mask
-  moon_mask=im_min
+  moon_mask=fltarr(im_sz[1],im_sz[2])
   moon_mask[*] = 1
   moon_mask[new_roi_pixels] = !values.f_nan
+  moon_mask[roi_pixels] = !values.f_nan
   
   return, moon_mask
   

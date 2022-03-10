@@ -46,7 +46,8 @@
 ;                 y dimension of the camera. If the difference is larger this position
 ;                 is ignored
 ;    px_smooth - the number of pixels to smooth the asi image before searching for peaks
-;    moon - flag to remove the moon from the imager
+;    moon - flag to remove the moon from the imager using the mask returned by 
+;           asi_moon_mask( ). The mask is generated from the first miniute of imager data
 ;    min_elevation - the minimum elevation of the camera to consider when searching for
 ;           peaks, creates a 2D mask [img size x, img size y] values with good elevation
 ;           are 1, all other are NaN
@@ -274,6 +275,16 @@ function asi_peakogram, $
     endfor
   endfor
   
+  
+  if keyword_set(moon) then begin
+    dprint, dlevel=0, 'Generating moon mask from first minute of data for '+site
+    trex_imager_readfile, asi_paths.asi_paths[0], img, meta, count=img_c
+    moon_mask = asi_moon_mask(img)
+    moon_mask = rotate(moon_mask,asi_paths.skymap_rotated_by)
+    
+    stop
+  endif
+  
   ; loop through the paths and find the peaks
   ; individual files are processed to reduce
   ; the amount of data loaded
@@ -286,7 +297,7 @@ function asi_peakogram, $
     pk_val = asi_peakogram_getpks(paths[i], $
       i_rot=asi_paths.skymap_rotated_by, x_pos=x_pos, y_pos=y_pos, $
       n_longitudes=n_lon, n_peaks=n_pks, $
-      px_smooth=px_smth, moon=moon, mask=ele_mask, $
+      px_smooth=px_smth, moon=moon_mask, mask=ele_mask, $
       _EXTRA=ex)
     pk_temp.Add, pk_val
   endfor
@@ -399,6 +410,9 @@ fixplot
 ;  px_smooth=[5,10,11], moon=[0,1,1], min_elevation=[25,10,19])
 
 ;dat = asi_peakogram(['snkq_themis','gill_rego','fsim_themis'],'2015-02-03/03:18:00', 42, /minutes, /add_tplot, /verbose)
-dat = asi_peakogram(['gill_themis','fsmi_themis','fsim_themis','fykn_themis'],'2010-02-16/07:00:00', 45, /minutes, /add_tplot, /verbose)
+;dat = asi_peakogram(['gill_themis','fsmi_themis','fsim_themis','fykn_themis'],'2010-02-16/07:00:00', 45, /minutes, /add_tplot, /verbose)
+
+dat = asi_peakogram(['snkq_themis','gill_rego','fsim_themis'],'2015-02-03/03:18:00', 42, moon=[1,1,1], /minutes, /add_tplot, /verbose)
+
 
 end

@@ -1,5 +1,4 @@
 ;+
-;+
 ; :Function:
 ;     asi_peakogram_getpks
 ;
@@ -119,7 +118,9 @@ function asi_peakogram_getpks, $
     ; smooth the image
     im_temp = smooth(im_temp,px_temp,/edge_truncate,/nan)
     ; apply the image mask
+    
     if keyword_set(mask) then im_temp = im_temp*mask
+    if keyword_set(moon) then im_temp = im_temp*moon
     
     ; loop through the longitude slice
     for j=0L, nlon_temp-1 do begin
