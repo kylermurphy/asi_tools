@@ -253,8 +253,6 @@ function asi_peakogram, $
     n_lon = 1   
   endelse
   
-  ; need to do an elevations check here
-  
   lon_arr = reform(asi_paths.asi_skymap.CENTER_MAG_LONGITUDE[*,*,alt])
   lat_arr = reform(asi_paths.asi_skymap.CENTER_MAG_LATITUDE[*,*,alt])
   
@@ -281,8 +279,6 @@ function asi_peakogram, $
     trex_imager_readfile, asi_paths.asi_paths[0], img, meta, count=img_c
     moon_mask = asi_moon_mask(img)
     moon_mask = rotate(moon_mask,asi_paths.skymap_rotated_by)
-    
-    stop
   endif
   
   ; loop through the paths and find the peaks
@@ -342,8 +338,7 @@ function asi_peakogram, $
     for i=0L, n_lon-1 do begin
       ; get the latitdues positions
       ;of each longitude slice
-      lats = asi_paths.asi_skymap.CENTER_MAG_LATITUDE[*,*,alt]*ele_mask
-      lats = lats[x_pos[i,*],y_pos[i,*]]
+      lats = lat_arr[x_pos[i,*],y_pos[i,*]]
       
       ; find the lat min and max
       ;values along each slice
@@ -389,10 +384,11 @@ function asi_peakogram, $
   ; change back to nominal dprint level
   dprint, setdebug=debug0
  
-  return, {asi_site:asi_paths.asi_site, asi_array:asi_paths.asi_array, $
+  return, {asi_site:asi_paths.asi_site, asi_array:asi_paths.asi_array, pk_time:pk_time_arr, $
     pk_lon_val:pk_lon, pk_lat:pk_lat_arr,pk_lon:pk_lon_arr, $
     pk_amp:pk_amp_arr, pk_pos:pk_pos_arr, n_lon:n_lon, n_pk:n_pks, $
-    x_pos:x_pos, y_pos:y_pos, asi_x:asi_paths.asi_x, asi_y:asi_paths.asi_y, asi_paths:paths}
+    x_pos:x_pos, y_pos:y_pos, asi_x:asi_paths.asi_x, asi_y:asi_paths.asi_y, asi_paths:paths, $
+    lat_min:min(lat_arr[x_pos,y_pos]), lat_max:max(lat_arr[x_pos,y_pos]), alt:alt}
   
 end
 
