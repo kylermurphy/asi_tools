@@ -6,6 +6,7 @@ pro asi_peakoplot, pk_str, imin=imin, imax=imax, overplot=overplot, sym_ct=sym_c
   if keyword_set(sym_ct) then sym_ct = sym_ct else sym_ct = [56,59,49,50,51]
   if keyword_set(sz_min) then sz_min = sz_min else sz_min = 0.1
   if keyword_set(sz_max) then sz_max = sz_max else sz_max = 1.5
+  if keyword_set(overplot) then op = 1 else op = 0
   
   if sz_min gt sz_max then begin
     sz_min = 0.1
@@ -31,6 +32,9 @@ pro asi_peakoplot, pk_str, imin=imin, imax=imax, overplot=overplot, sym_ct=sym_c
   ; add the tick array to the extra
   ;reference but only if the same 
   ;keywords haven't been passed
+  
+  ; if the same keywords have been passed
+  ;set offset to 0
   if size(ex,/type) eq 8 then begin
     ex_tags = tag_names(ex)
     ;determine if xtickvalues have been
@@ -43,28 +47,27 @@ pro asi_peakoplot, pk_str, imin=imin, imax=imax, overplot=overplot, sym_ct=sym_c
         if tk_tags[i] eq 'XRANGE' or tk_tags[i] eq 'XTITLE' then continue
         ex = create_struct(ex,tk_tags[i],x_tk.(i))
       endfor
-    endif
+    endif else offset=0
   endif else ex = x_tk
     
-  if size(offset,/type) ne 0 then offset=offset else offset=0
+  ; skip plotting if you are overplotting on existing plot
+  if op eq 0 then plot, [x_min,x_max]-offset,[y_min,y_max], /nodata, _EXTRA=ex
   
-  plot, [x_min,x_max]-offset,[y_min,y_max], /nodata, _EXTRA=ex
-  
+  ; find the scales for plotting if not set
   if keyword_set(imax) then cmax=imax else cmax=max(pk_str.pk_amp)
   if keyword_set(imin) then cmin=imin else cmin=min(pk_str.pk_amp)
   
+  ; loop through the number of longitudes
+  ; number of peaks and plot
   ct_num=0
   for i=0L, pk_str.n_lon-1 do begin
     loadct,sym_ct[ct_num],/silent
-    
     c_plot = bytscl(reform(pk_str.pk_amp[*,i,*]),min=cmin,max=cmax,/nan)
     for j=0L, pk_str.n_pk-1 do begin
       for w=0L, n_elements(pk_str.pk_time)-1 do $
         plots, pk_str.pk_time[w]-offset, pk_str.pk_lat[w,i,j], psym=sym(1), $
         color=c_plot[w,j],  symsize=sym_sz[w,i,j], noclip=0
     endfor
-    
-      
     ct_num++
     if ct_num gt sym_ct.length then ct_num=0
   endfor
