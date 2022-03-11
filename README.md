@@ -70,3 +70,27 @@ dat = asi_load_data('fsmi_rgb', '2019-02-18/03:25:00', 30, /minutes, /meta)
 window, xsize=dat.asi_x, ysize=dat.asi_y
 for i=0L, dat.asi_frames do tvscl,alog10(reform((dat.asi_img[*,*,i])))
 
+## Generating a Peakogram
+
+The peakogram searches for peaks in auroral brightness at fixed longitudes. It allows users to investigate the latitudinal motion and evolution of the aurora. In order to be able to run on mutliple stations and multiple arrays the functionality is slightly different then that of loading data using ```asi_load_data```. Namely stations must be passed using the 4 chracter site code followed by an underscore and the array, ```????_themis```. 
+
+Examples
+
+```idl
+; generate a peakogram from the GILL REGO ASI at two longitudes
+; and plot it using the peakogram plotting procedure
+dat = asi_peakogram('gill_rego', '2015-02-02/10:00:00', 60, /minutes, n_longitude=2, min_elevation=15)
+!x.omargin=[0,15]
+asi_peakoplot, dat, yrange=[64,67]
+
+; generate a peakogram from SNKQ THEMIS, GILL REGO, FSIM THEMIS
+; using different parameters for each station e.g., FOR SNKQ use 
+; altitude1, 3 peaks, 3 longitudes, smooth over 5 pixels, do not 
+; remove the moon, and set minimum elevation to 10 degrees. 
+; add a tplot like plot for all peakograms
+
+dat = asi_peakogram(['snkq_themis','gill_rego','fsim_themis'],'2015-02-02/10:00:00', 60, $
+             alt=[1,2,1], n_peaks=[3,2,2], n_longitudes=[3,1,1], , $
+             px_smooth=[5,10,11], moon=[0,0,0], min_elevation=[10,10,10], /add_tplot)
+
+```

@@ -82,6 +82,7 @@ end
 
 
 restore,'D:\asi_tools_peakotest.sav',/verbose 
+dat = asi_peakogram('gill_rego', '2015-02-02/10:00:00', 60, /minutes,n_longitude=2, min_elevation=15)
 fixplot
 !x.omargin=[0,15]
 asi_peakoplot, dat, yrange=[64,67]
