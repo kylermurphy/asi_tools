@@ -169,12 +169,4 @@ function asi_peakogram_getpks, $
   
 end
   
-; main
-;  test
-; 
-  
-;a = asi_peakogram_getpks('hi',x_pos=1, y_pos=1, n_peaks=1, px_smooth=1, n_longitudes=1, moon=0)
-dat = asi_peakogram('gill_themis', '2011-04-09/04:24:00', 6, /minutes,n_longitude=1)
-
-end  
    

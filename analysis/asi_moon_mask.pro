@@ -89,19 +89,3 @@ function asi_moon_mask, asi_img, outlier=outlier
   return, moon_mask
   
 end
-
-
-
-
-;MAIN
-; test
- 
-
-dat = asi_load_data('snkq_themis','2015-02-03/03:18:00', 1, /minutes)
-
-;dat
-
-mask = asi_moon_mask(dat.asi_img)
-
-
-end

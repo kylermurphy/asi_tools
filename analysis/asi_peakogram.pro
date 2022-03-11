@@ -19,12 +19,21 @@
 ; :Example:
 ; 
 ;     Get peakogram for the Gillam THEMIS station from a single longitude
+;     
 ;     dat = asi_peakogram('gill_themis', '2011-04-09/04:24:00', 6, /minutes,n_longitude=1)
 ;     
 ;     Get peakogram for the Gillam REGO station, consider only points with elevation
 ;     greater then 25 degrees, add a tplot variable which shows the approximate 
 ;     position and brightness of the peaks
+;     
 ;     dat = asi_peakogram('gill_rego', '2015-02-02/10:00:00', 60, /minutes,n_longitude=1, min_elevation=25, /add_tplot)
+;
+;     Get the peakogram for snkq themis, gill rego, fsim themis and add tplot varaibles for all 
+;
+;     dat = asi_peakogram(['snkq_themis','gill_rego','fsim_themis'],'2015-02-02/10:00:00', 60, $
+;             alt=[1,2,1], n_peaks=[3,2,2], n_longitudes=[3,1,1], , $
+;             px_smooth=[5,10,11], moon=[0,0,0], min_elevation=[10,10,10], /add_tplot)
+;
 ;
 ; :Params:
 ;    site - 4 character site followed by array name '????_array'
@@ -388,27 +397,8 @@ function asi_peakogram, $
     pk_lon_val:pk_lon, pk_lat:pk_lat_arr,pk_lon:pk_lon_arr, $
     pk_amp:pk_amp_arr, pk_pos:pk_pos_arr, n_lon:n_lon, n_pk:n_pks, $
     x_pos:x_pos, y_pos:y_pos, asi_x:asi_paths.asi_x, asi_y:asi_paths.asi_y, asi_paths:paths, $
-    lat_min:min(lat_arr[x_pos,y_pos]), lat_max:max(lat_arr[x_pos,y_pos]), alt:alt}
+    lat_min:min(lat_arr[x_pos,y_pos]), lat_max:max(lat_arr[x_pos,y_pos]), alt:alt, $
+    i_rot:asi_paths.skymap_rotated_by}
   
 end
 
-
-
-;MAIN
-;test
-fixplot
-;dat = asi_peakogram('gill_themis', '2011-04-09/04:24:00', 6, /minutes,n_longitude=1)
-;dat = asi_peakogram('fykn_themis', '2008-02-15/08:00:00', 120, /minutes,n_longitude=2, /add_tplot)
-;dat = asi_peakogram('gill_rego', '2015-02-02/10:00:00', 60, /minutes,n_longitude=1, min_elevation=25, /add_tplot)
-
-;dat = asi_peakogram(['snkq_themis','gill_rego','fsim_themis'],'2015-02-02/10:00:00', 60, $
-;  alt=[0,1,1], n_peaks=[3,2,1], n_longitudes=[7,8,9], longitudes=list([45,5],[22],[12]), $
-;  px_smooth=[5,10,11], moon=[0,1,1], min_elevation=[25,10,19])
-
-;dat = asi_peakogram(['snkq_themis','gill_rego','fsim_themis'],'2015-02-03/03:18:00', 42, /minutes, /add_tplot, /verbose)
-;dat = asi_peakogram(['gill_themis','fsmi_themis','fsim_themis','fykn_themis'],'2010-02-16/07:00:00', 45, /minutes, /add_tplot, /verbose)
-
-dat = asi_peakogram(['snkq_themis','gill_rego','fsim_themis'],'2015-02-03/03:18:00', 42, moon=[1,1,1], /minutes, /add_tplot, /verbose)
-
-
-end
