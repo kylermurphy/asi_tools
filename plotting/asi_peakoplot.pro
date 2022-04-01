@@ -1,5 +1,6 @@
 pro asi_peakoplot, $
   pk_str, $ ; a structure or structure of structures containing the output from asi_peakogram
+  trange=trange, $ ; time range to plot
   imin=imin, $ ; minimum intensity
   imax=imax, $ ; maximum intesnity
   sym_ct=sym_ct, $ ; color table to use
@@ -10,6 +11,8 @@ pro asi_peakoplot, $
 
   !x.style=1
   !y.style=1
+  
+  asi_init
   
   ;set up multi plot for loop here
   
@@ -29,12 +32,15 @@ pro asi_peakoplot, $
   phi=findgen(32)*(!PI*2/32.)
   phi = [phi, phi(0)]
   usersym, cos(phi), sin(phi), /fill
-     
-  x_min = min(pk_str.pk_time,max=x_max,/nan) 
+  
+  if keyword_set(trange) then xrange=time_double(trange) else begin   
+    x_min = min(pk_str.pk_time,max=x_max,/nan)
+    xrange = [x_min,xmax] 
+  endelse
   y_min = pk_str.lat_min
   y_max = pk_str.lat_max
   
-  x_tk = time_ticks([x_min,x_max], offset)
+  x_tk = time_ticks(xrange, offset)
   x_tk.xtickv = x_tk.xtickv
   
   ; add the tick array to the extra
@@ -90,6 +96,7 @@ pro asi_peakoplot, $
     c_plot = bytscl(reform(pk_amp[*,i,*]),min=crange[0],max=crange[1],/nan)
     for j=0L, pk_str.n_pk-1 do begin
       for w=0L, n_elements(pk_str.pk_time)-1 do $
+        if pk_str.pk_time[i] gt xrange[1] or pk_str.pk_time lt xrange[0] then continue
         plots, pk_str.pk_time[w]-offset, pk_str.pk_lat[w,i,j], psym=sym(1), $
         color=c_plot[w,j],  symsize=sym_sz[w,i,j], noclip=0
     endfor
