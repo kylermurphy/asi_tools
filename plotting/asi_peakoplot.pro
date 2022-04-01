@@ -35,13 +35,14 @@ pro asi_peakoplot, $
   
   if keyword_set(trange) then xrange=time_double(trange) else begin   
     x_min = min(pk_str.pk_time,max=x_max,/nan)
-    xrange = [x_min,xmax] 
+    xrange = [x_min,x_max] 
   endelse
   y_min = pk_str.lat_min
   y_max = pk_str.lat_max
   
   x_tk = time_ticks(xrange, offset)
   x_tk.xtickv = x_tk.xtickv
+  
   
   ; add the tick array to the extra
   ;reference but only if the same 
@@ -95,10 +96,11 @@ pro asi_peakoplot, $
     loadct,sym_ct[ct_num],/silent, file=ct_file
     c_plot = bytscl(reform(pk_amp[*,i,*]),min=crange[0],max=crange[1],/nan)
     for j=0L, pk_str.n_pk-1 do begin
-      for w=0L, n_elements(pk_str.pk_time)-1 do $
-        if pk_str.pk_time[i] gt xrange[1] or pk_str.pk_time lt xrange[0] then continue
+      for w=0L, n_elements(pk_str.pk_time)-1 do begin  
+        if pk_str.pk_time[w] lt xrange[0] or pk_str.pk_time[w] gt xrange[1] then continue
         plots, pk_str.pk_time[w]-offset, pk_str.pk_lat[w,i,j], psym=sym(1), $
         color=c_plot[w,j],  symsize=sym_sz[w,i,j], noclip=0
+      endfor
     endfor
     
     if i ne pk_str.n_lon-1 then begin
@@ -137,13 +139,16 @@ restore,'D:\asi_tools_peakotest.sav',/verbose
 dat = asi_peakogram('gill_rego', '2015-02-02/10:00:00', 60, /minutes,n_longitude=3, min_elevation=15)
 fixplot
 !x.omargin=[0,15]
-asi_peakoplot, dat, yrange=[64,67],/log, imin=100, imax=10000
+window, 0
+;asi_peakoplot, dat, yrange=[64,67],/log, imin=100, imax=10000
 
 window, 2
 fixplot
 !x.omargin=[0,15]
 plot, dat.pk_time,dat.pk_time, yrange=[64.75,66],/nodata
-asi_peakoplot, dat, yrange=[64,67],/log, imin=100, imax=10000,/overplot
+
+stop
+asi_peakoplot, dat,/log, imin=100, imax=10000,/overplot, trange=['2015-02-02/10:20','2015-02-02/10:40']
 
 
 
