@@ -116,7 +116,7 @@ function asi_peakogram_getpks, $
     ; rotate the image
     im_temp = rotate(reform(img[*,*,i]),i_rot)
     ; smooth the image
-    im_temp = smooth(im_temp,px_temp,/edge_truncate,/nan)
+    im_temp = smooth(im_temp,px_temp,/edge_zero,/nan)
     ; apply the image mask
     
     if keyword_set(mask) then im_temp = im_temp*mask
@@ -125,7 +125,7 @@ function asi_peakogram_getpks, $
     ; loop through the longitude slice
     for j=0L, nlon_temp-1 do begin
       ; get the longitude slices of data
-      lon_line = reform(im_temp[x_temp[j,*],y_temp[j,*]])
+      lon_line = smooth(reform(im_temp[x_temp[j,*],y_temp[j,*]]),px_temp,/nan)
       ; find where there was bad data and set 
       ; those values of lon_line to NaN
       bd_pos = where(x_temp[j,*] lt 0 or y_temp[j,*] lt 0, c)

@@ -41,7 +41,7 @@ pro asi_peakoplot, $
   y_max = pk_str.lat_max
   
   x_tk = time_ticks(xrange, offset)
-  x_tk.xtickv = x_tk.xtickv
+  ;x_tk.xtickv = x_tk.xtickv
   
   
   ; add the tick array to the extra
@@ -140,7 +140,7 @@ dat = asi_peakogram('gill_rego', '2015-02-02/10:00:00', 60, /minutes,n_longitude
 fixplot
 !x.omargin=[0,15]
 window, 0
-;asi_peakoplot, dat, yrange=[64,67],/log, imin=100, imax=10000
+asi_peakoplot, dat, yrange=[64,67],/log, imin=100, imax=10000
 
 window, 2
 fixplot
