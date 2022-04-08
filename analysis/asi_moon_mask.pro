@@ -9,7 +9,7 @@
 ;    data 
 ;    
 ; :Calling Sequence:
-;     dat = asi_load_data(asi_img)
+;     dat = asi_moon_mask(asi_img)
 ;     
 ; :Example:
 ; 
@@ -70,6 +70,8 @@ function asi_moon_mask, asi_img, outlier=outlier
   ;1.5 times the inter quartile range
   if keyword_set(outlier) then outlier=outlier else begin
     im_sort = im_min[sort(im_min,/L64)]
+    gd = where(finite(im_sort) eq 1)
+    im_sort = im_sort[gd]
     lq = im_sort[im_sort.length*0.25]
     uq = im_sort[im_sort.length*0.75]
     iqr = uq-lq
@@ -80,6 +82,20 @@ function asi_moon_mask, asi_img, outlier=outlier
   roi_pixels = where(im_min ge outlier, complement=gd, bc)
   ; use the outlying pixels to grow the region
   new_roi_pixels = region_grow(im_min, roi_pixels, stddev_multiplier=1.5, all_neighbors=1)
+  
+  ; calculate the ratio of moon pixels 
+  ; to good pixels 
+  ; if the ratio is greater then 0.25
+  ; recalculate the new moon region by reducing
+  ; the stddev_multiplier
+  im_moon_ratio = new_roi_pixels.length/float(im_sort.length)
+  std_dev = 1.25
+  while im_moon_ratio gt 0.25 do begin
+    new_roi_pixels = region_grow(im_min, roi_pixels, stddev_multiplier=std_dev, all_neighbors=1)
+    std_dev = std_dev-0.25
+    im_moon_ratio = new_roi_pixels.length/float(im_sort.length)
+  endwhile
+  
   ; use the new region to define the moon mask
   moon_mask=fltarr(im_sz[1],im_sz[2])
   moon_mask[*] = 1
