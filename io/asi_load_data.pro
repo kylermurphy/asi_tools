@@ -48,6 +48,7 @@
 ;    blue_line - load data from TREX Blueline array
 ;    path_only - return only the local paths to the files
 ;    meta_data - return the meta data structure in the pgm's
+;    local - only check for local files
 ;    no_load - don't load the data, only return the paths and skymap
 ;    
 ;    _EXTRA - additional keywords for spd_download( )

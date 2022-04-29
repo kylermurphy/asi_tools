@@ -59,6 +59,7 @@ function asi_download_skymap, $
   rego=rego, $ ; Download skymaps for REGO (red line) array
   rgb=rgb, $ ; Download skymaps for TREx RGB
   blueline=blueline, $ ; Download skympas for TREx blue line
+  local=local, $ ; check for local files only
   _EXTRA=ex
 
   asi_init
@@ -106,25 +107,35 @@ function asi_download_skymap, $
   ;get the 4 character code for directory structure
   asi_site = strmid(strlowcase(site),0,4)
   
-  ; finish setting up download url
-  ;skymaps are stored in individual folders
-  ;by date. Since we don't know these dates
-  ;find the folders first
-  url=url+asi_site+'/'+asi_site+'_*'
-  ; get full paths to data
-  spd_download_expand,url
-  
   ; setup the local download directory
   dir=filepath(dir,root_dir=!asi_tools.data_dir)
   dir=filepath(asi_site,root_dir=dir)+path_sep()
-  
-  ; want to add all skymaps to a common folder
-  ;as opposed to individual folders
-  paths = strarr(url.length)
-  for i=0L, url.length-1 do begin   
-    paths[i] = spd_download(remote_file=url[i]+'*.sav', local_path=dir,no_update=1, _EXTRA=ex)
-  endfor
+
+
+  if keyword_set(local) then begin
+    ; if local keyword set only look for local
+    ;skymaps
+    fn = '*_skymap_'+asi_site+'_????????-*.sav'
+    paths = file_search(dir+fn)
+  endif else begin
+    ; finish setting up download url
+    ;skymaps are stored in individual folders
+    ;by date. Since we don't know these dates
+    ;find the folders first
+    url=url+asi_site+'/'+asi_site+'_*'
+    ; get full paths to data
+    if keyword_set(local) then url='blankstr' else spd_download_expand,url
+
+
+    ; want to add all skymaps to a common folder
+    ;as opposed to individual folders
+    paths = strarr(url.length)
+    for i=0L, url.length-1 do begin
+      paths[i] = spd_download(remote_file=url[i]+'*.sav', local_path=dir,no_update=1, _EXTRA=ex)
+    endfor
+  endelse
 
   return,paths
 
 end
+
