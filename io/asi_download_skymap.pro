@@ -115,6 +115,7 @@ function asi_download_skymap, $
   if keyword_set(local) then begin
     ; if local keyword set only look for local
     ;skymaps
+    dprint, dlevel=0, 'Searching for only local skymaps...' 
     fn = '*_skymap_'+asi_site+'_????????-*.sav'
     paths = file_search(dir+fn)
   endif else begin

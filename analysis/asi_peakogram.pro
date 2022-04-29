@@ -137,9 +137,10 @@ function asi_peakogram, $
   asi_init
   
   ; make the data loading quiet
-  dprint, getdebug=debug0
-  dprint, setdebug=0
-  
+  ;dprint, getdebug=debug0
+  ;dprint, setdebug=0
+  ;dprint, setdebug=debug0
+
   ; if multiple sites are passed return
   ;a structure of strucuters where each
   ;structure within the main is the data

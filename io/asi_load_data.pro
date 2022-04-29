@@ -223,7 +223,10 @@ function asi_load_data, $
   
   ;check if directory exists
   ; only if we aren't loading local files
-  if keyword_set(local) then url_test='blankstr_blankstr_' else spd_download_expand, url_test
+  if keyword_set(local) then begin
+    url_test='blankstr_blankstr_'
+    dprint, dlevel=0, 'Searching for only local images...' 
+  endif else spd_download_expand, url_test
   if strlen(url_test[0]) eq 0 then return, 0
   ;get the ? appended to the site
   asi_append = strsplit(url_test[0],'/_',/extract)
@@ -274,11 +277,9 @@ function asi_load_data, $
   paths = file_search(paths,count=fc)
   if fc eq 0 then return, {asi_paths:-1}
   
-  stop
-  
   ; load the skymap
   ;find all skymaps for current site/array
-  skymap_path= asi_download_skymap(site=asi_site,themis=themis,rego=rego,rgb=rgb,blueline=blueline)
+  skymap_path= asi_download_skymap(site=asi_site,themis=themis,rego=rego,rgb=rgb,blueline=blueline,local=local)
   ; check the type returned to make sure
   ;paths are actually returned
   skymap_type = size(skymap_path,/type)
