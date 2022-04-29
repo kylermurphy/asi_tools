@@ -392,7 +392,7 @@ function asi_peakogram, $
   endif
 
   ; change back to nominal dprint level
-  dprint, setdebug=debug0
+  ;dprint, setdebug=debug0
  
   return, {asi_site:asi_paths.asi_site, asi_array:asi_paths.asi_array, pk_time:pk_time_arr, $
     pk_lon_val:pk_lon, pk_lat:pk_lat_arr,pk_lon:pk_lon_arr, $
