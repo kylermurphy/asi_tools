@@ -31,6 +31,7 @@
 ;     rego - download REGO Skymaps
 ;     rgb - download TREx RGB skymaps
 ;     blueline - download TREx Blue Line skymaps
+;     local - only search for local files
 ;     _EXTRA - additional keywords for spd_download( )
 ;    
 ;     _EXTRA examples
