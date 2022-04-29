@@ -109,6 +109,7 @@ function asi_load_data, $
   blueine=blueline, $ ; load from TREX blue line
   path_only=path_only, $ ; return only the paths to the local files
   meta_data=meta_data, $ ; return the meta data along with the data
+  local=local, $ ; check for local files only
   no_load=no_load, $ ;don't load the data, only return paths and skymap
   _EXTRA=ex  
 
@@ -220,9 +221,9 @@ function asi_load_data, $
     asi_site+'*'
   
   ;check if directory exists
-  spd_download_expand, url_test
+  ; only if we aren't loading local files
+  if keyword_set(local) then url_test='blankstr_blankstr_' else spd_download_expand, url_test
   if strlen(url_test[0]) eq 0 then return, 0
-  
   ;get the ? appended to the site
   asi_append = strsplit(url_test[0],'/_',/extract)
   asi_text = '_'+asi_append[-1]
@@ -253,13 +254,26 @@ function asi_load_data, $
       time_string(t_arr[i],tformat='hh')+path_sep()+ $
       asi_site+path_sep()
     
-    paths[i] = spd_download(remote_file=full_url,local_path=dl_dir, no_update=1, _EXTRA=ex)
+    
+    
+    if keyword_set(local) then begin
+      ;get the local file name
+      fn= file_basename(full_url)
+      ;search fo the local file
+      lp = file_search(dl_dir+fn,count=fc)
+      if fc eq 1 then paths[i] = lp[0]
+    endif else begin
+      paths[i] = spd_download(remote_file=full_url,local_path=dl_dir, no_update=1, _EXTRA=ex)
+    endelse
+    
   endfor
   
   ; check if any data was loaded
   ;if not return only paths=-1
   paths = file_search(paths,count=fc)
   if fc eq 0 then return, {asi_paths:-1}
+  
+  stop
   
   ; load the skymap
   ;find all skymaps for current site/array
@@ -376,4 +390,11 @@ function asi_load_data, $
 
   return, r_dat
   
+end
+
+
+;main
+;test 
+
+dat = asi_load_data('fsmi_themis', '2018-08-01/06:36:00', 2, /minutes,/local)
 end

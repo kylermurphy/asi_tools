@@ -97,6 +97,7 @@ pro asi_colorbar,range=range,brange=brange, ct=ct, ct_file=ct_file, log=log,ytic
 
   xbox = [xw[0],xw[1],xw[1],xw[0],xw[0]]
   ybox = [yw[0],yw[0],yw[1],yw[1],yw[0]]
+  loadct, 0,/silent
   plots,xbox,ybox,/normal,/noclip
 
   !x = xt     ; restore previous plot parameters
