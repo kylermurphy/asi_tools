@@ -108,7 +108,8 @@ pro asi_peakoplot, $
   y_max = pk_str.lat_max
   
   x_tk = time_ticks(xrange, offset)
-  ;x_tk.xtickv = x_tk.xtickv
+  x_tk.xtickv = x_tk.xtickv+offset
+  x_tk.xrange = x_tk.xrange+offset
   
   
   ; add the tick array to the extra
@@ -135,7 +136,9 @@ pro asi_peakoplot, $
   ; skip plotting if you are overplotting on existing plot
   ; if overplotting set offset to 0 as other ticks will be 
   ; used
-  if op eq 0 then plot, [x_min,x_max]-offset,[y_min,y_max], /nodata, _EXTRA=ex else offset=0
+  if op eq 0 then plot, [x_min,x_max],[y_min,y_max], /nodata, _EXTRA=ex else offset=0
+  
+  stop
   
   ;scale symbol sizes
   sym_sz = normalize_vec(pk_str.pk_amp)*(sz_max-sz_min)+sz_min
@@ -194,6 +197,9 @@ pro asi_peakoplot, $
     if ct_num gt sym_ct.length then ct_num=0
   endfor
   
+  stop
+  cursor,xx,yy, /data,/nowait
+  
 end
 
 
@@ -202,8 +208,10 @@ end
 ; test
 
 fixplot
-dat = asi_peakogram(['gill_rego','fsmi_themis','fsim_themis'], '2015-02-02/10:20:00', 20, /minutes,n_longitude=1, min_elevation=15)
+dat = asi_peakogram('gill_rego', '2015-02-02/10:20:00', 20, /minutes,n_longitude=1, min_elevation=15)
 asi_peakoplot, dat, /log
+
+stop
 
 fixplot
 !x.omargin=[0,15]
