@@ -402,7 +402,7 @@ function asi_peakogram, $
     pk_amp:pk_amp_arr, pk_pos:pk_pos_arr, n_lon:n_lon, n_pk:n_pks, $
     x_pos:x_pos, y_pos:y_pos, asi_x:asi_paths.asi_x, asi_y:asi_paths.asi_y, asi_paths:paths, $
     lat_min:min(lat_arr[x_pos,y_pos]), lat_max:max(lat_arr[x_pos,y_pos]), alt:alt, $
-    i_rot:asi_paths.skymap_rotated_by}
+    i_rot:asi_paths.skymap_rotated_by, ele_mask:ele_mask}
   
 end
 
