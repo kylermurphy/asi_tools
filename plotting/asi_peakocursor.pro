@@ -1,8 +1,6 @@
 pro asi_peakocursor, $
   pk_str ; a structure or structure of structures containing the output from asi_peakogram
-  
-  
-  
+ 
   if pk_str.asi_array eq 'REGO' then l_ct=3 else l_ct=8
   
   ;get the peakogram 
