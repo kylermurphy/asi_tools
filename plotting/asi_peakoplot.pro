@@ -15,13 +15,80 @@ pro asi_peakoplot, $
   asi_init
   
   ;set up multi plot for loop here
+  ; check for tag names and if multiple
+  ; sites exist
+  pk_tags = tag_names(pk_str)
+  ns_pos = where(pk_tags eq 'N_SITES',nc)
+  if nc gt 0 then begin
+    p_sites = where(pk_tags ne 'N_SITES',pc)
+    n_sites = pk_str.n_sites
+    
+    ;check if overplot keyword was set and 
+    ; if there are enough plots left in 
+    ; the current window, if not create a window
+    ; for plotting
+    if !p.multi[0] lt n_sites and not keyword_set(overplot) then begin
+      fixplot
+      xs = 600
+      ys = 200*n_sites
+      window, 31, xsize=xs, ysize=ys
+      !p.multi = [0,1,n_sites]
+      if n_sites gt 2 then !p.charsize=2.0
+      !x.omargin=[0,15]
+      !y.omargin=[1,0]
+      !y.margin=[2,1]
+    endif
   
-  
+    ;check if keywords are set
+    ; if they are the same size as the number of asi's passed
+    ; then pass them in order with the asi loaded
+    ; if they aren't the same size pass the first element
+    ; if they haven't been set set the passed values to null
+    if size(trange,/type) eq 0 then trange_pass=!null $
+      else trange_pass=trange_pass
+    
+    ;loop through stations and plot 
+    for i=0L, p_sites.length-1 do begin
+      if size(imin,/type) eq 0 then imin_pass=!null $
+        else if n_elements(imin) eq n_sites then imin_pass=imin[i] else imin_pass=imin[0]
+      if size(imax,/type) eq 0 then imax_pass=!null $
+        else if n_elements(imax) eq n_sites then imax_pass=imax[i] else imax_pass=imax[0]
+      if size(sym_ct,/type) eq 0 then sym_ct_pass=!null $
+        else if n_elements(sym_ct) eq n_sites then sym_ct_pass=sym_ct[i] else sym_ct_pass=sym_ct[0]
+      if size(ct_file,/type) eq 0 then ct_file_pass=!null $
+        else if n_elements(ct_file) eq n_sites then ct_file_pass=ct_file[i] else ct_file_pass=ct_file[0] 
+      if size(log,/type) eq 0 then log_pass=!null $
+        else if n_elements(log) eq n_sites then log_pass=log[i] else log_pass=log[0] 
+      
+      ;check if yrange keyword has been passed via _EXTRA=ex
+      if size(ex,/type) eq 8 then begin
+        ex_tags = tag_names(ex)
+        yr = where(ex_tags eq 'YRANGE',yc)
+        if yc eq 1 then begin
+          if n_elements(ex.yrange[0,*]) eq n_sites then yrange=ex.yrange[*,i] $
+            else if n_elements(ex.yrange) eq 2 then yrange=ex.yrange[*] else yrange=!null 
+        endif
+      endif
+     
+      asi_peakoplot, pk_str.(p_sites[i]),trange=trange_pass, imin=imin_pass, imax=imax_pass, $
+        sym_ct=sym_ct_pass, ct_file=ct_file_pass, log=log_pass, overplot=overplot, $
+        ytitle=pk_tags[p_sites[i]], yrange=yrange 
+    endfor
+    
+    ;once looped through all sites stop
+    return
+  endif
+  ;stop
   
   if keyword_set(sym_ct) then sym_ct = sym_ct else sym_ct = [56,59,49,50,51]
   if keyword_set(sz_min) then sz_min = sz_min else sz_min = 0.1
   if keyword_set(sz_max) then sz_max = sz_max else sz_max = 1.5
   if keyword_set(overplot) then op = 1 else op = 0
+  
+  if size(pk_str,/type) ne 8 then begin
+    print, 'No data in the peakogram structure'
+    return 
+  endif
   
   if sz_min gt sz_max then begin
     sz_min = 0.1
@@ -134,22 +201,28 @@ end
 ; MAIN
 ; test
 
+fixplot
+dat = asi_peakogram(['gill_rego','fsmi_themis','fsim_themis'], '2015-02-02/10:20:00', 20, /minutes,n_longitude=1, min_elevation=15)
+asi_peakoplot, dat, /log
 
-restore,'D:\asi_tools_peakotest.sav',/verbose 
-dat = asi_peakogram('gill_rego', '2015-02-02/10:00:00', 60, /minutes,n_longitude=1, min_elevation=15,/local)
 fixplot
 !x.omargin=[0,15]
-window, 0
-asi_peakoplot, dat, yrange=[64,67],/log, imin=100, imax=10000
+window, 0, xsize=500, ysize=500
+!p.multi=[0,1,2]
+asi_peakoplot, dat, /log, imin=[700,6000], imax=[1100,10000],yrange=[[64,67],[56,70]], sym_ct=[62,63]
 
+window, 2, xsize=500, ysize=600
+!p.multi=[0,1,2]
+asi_peakoplot, dat, /log, imin=[700,6000], imax=[1100,10000],yrange=[64,67]
+
+
+stop
 window, 2
 fixplot
 !x.omargin=[0,15]
-plot, dat.pk_time,dat.pk_time, yrange=[64.75,66],/nodata
+plot, dat.gill_rego.pk_time,dat.gill_rego.pk_time, yrange=[62,70],/nodata
 
-stop
-asi_peakoplot, dat,/log, imin=100, imax=10000,/overplot, trange=['2015-02-02/10:20','2015-02-02/10:40']
-
+asi_peakoplot, dat,/log,/overplot, imax=[1100,10000],yrange=[[64,67],[56,70]], sym_ct=[62,63]
 
 
 end

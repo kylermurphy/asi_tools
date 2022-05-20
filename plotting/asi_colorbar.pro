@@ -90,10 +90,9 @@ pro asi_colorbar,range=range,brange=brange, ct=ct, ct_file=ct_file, log=log,ytic
     endif else begin
       axis, yaxis = 1, ystyle = 1, yrange = range, ylog = log, ytitle = title, charsize = charsize,_extra=ex
     endelse
-
+    
+    tvlct, c_ct
   endif
-
-  tvlct, c_ct
 
   xbox = [xw[0],xw[1],xw[1],xw[0],xw[0]]
   ybox = [yw[0],yw[0],yw[1],yw[1],yw[0]]

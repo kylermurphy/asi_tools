@@ -230,6 +230,9 @@ function asi_peakogram, $
   ;get skymap and paths to data
   dprint, dlevel=0, 'Loading Skymap and retreiving data and paths for '+site
   asi_paths = asi_load_data(site,t0,dt,minutes=minutes,hours=hours, no_load=1,_EXTRA=ex)
+  
+  ;no data returned
+  if size(asi_paths,/type) eq 2 then return, 0
     
   ;create elvation mask
   gd_ele = where(asi_paths.asi_skymap.full_elevation gt min_elevation, ele_c)
