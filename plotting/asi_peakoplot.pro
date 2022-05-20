@@ -138,8 +138,6 @@ pro asi_peakoplot, $
   ; used
   if op eq 0 then plot, [x_min,x_max],[y_min,y_max], /nodata, _EXTRA=ex else offset=0
   
-  stop
-  
   ;scale symbol sizes
   sym_sz = normalize_vec(pk_str.pk_amp)*(sz_max-sz_min)+sz_min
   
@@ -168,7 +166,7 @@ pro asi_peakoplot, $
     for j=0L, pk_str.n_pk-1 do begin
       for w=0L, n_elements(pk_str.pk_time)-1 do begin  
         if pk_str.pk_time[w] lt xrange[0] or pk_str.pk_time[w] gt xrange[1] then continue
-        plots, pk_str.pk_time[w]-offset, pk_str.pk_lat[w,i,j], psym=sym(1), $
+        plots, pk_str.pk_time[w], pk_str.pk_lat[w,i,j], psym=sym(1), $
         color=c_plot[w,j],  symsize=sym_sz[w,i,j], noclip=0
       endfor
     endfor
@@ -197,9 +195,19 @@ pro asi_peakoplot, $
     if ct_num gt sym_ct.length then ct_num=0
   endfor
   
-  stop
-  cursor,xx,yy, /data,/nowait
-  
+  cursor, xx, yy, /data, /nowait
+  old_x = xx
+  old_y = yy
+  done = 0
+  while not done do begin
+    cursor,xx,yy, /data,/nowait
+    change_pos = abs(old_x-xx)
+    old_x = xx
+    if change_pos ne 0 then print, time_string(xx), change_pos
+    done = !MOUSE.button eq 1
+  endwhile
+
+  stop  
 end
 
 
@@ -208,8 +216,10 @@ end
 ; test
 
 fixplot
+!x.omargin=[0,15]
+window, 0, xsize=500, ysize=500
 dat = asi_peakogram('gill_rego', '2015-02-02/10:20:00', 20, /minutes,n_longitude=1, min_elevation=15)
-asi_peakoplot, dat, /log
+asi_peakoplot, dat, /log, yrange=[64,67]
 
 stop
 
