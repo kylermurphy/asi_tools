@@ -199,8 +199,6 @@ pro asi_peakoplot, $
   
   if keyword_set(pkcursor) then asi_peakocursor, pk_str
   
-
-  stop  
 end
 
 
