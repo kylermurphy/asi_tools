@@ -7,6 +7,7 @@ pro asi_peakoplot, $
   ct_file=ct_file, $ ; file to load color table
   log=log, $ ; log 10 the intensity before plotting
   overplot=overplot, $ ; overplot on the current plot
+  pkcursor=pkcursor, $ ; plot the asi image with peaks and longitude slices
    _EXTRA=ex ; extra keywords for plotting (e.g., x and y titles)
 
   !x.style=1
@@ -71,7 +72,7 @@ pro asi_peakoplot, $
       endif
      
       asi_peakoplot, pk_str.(p_sites[i]),trange=trange_pass, imin=imin_pass, imax=imax_pass, $
-        sym_ct=sym_ct_pass, ct_file=ct_file_pass, log=log_pass, overplot=overplot, $
+        sym_ct=sym_ct_pass, ct_file=ct_file_pass, log=log_pass, overplot=overplot, pkcursor=0, $
         ytitle=pk_tags[p_sites[i]], yrange=yrange 
     endfor
     
@@ -195,17 +196,9 @@ pro asi_peakoplot, $
     if ct_num gt sym_ct.length then ct_num=0
   endfor
   
-  cursor, xx, yy, /data, /nowait
-  old_x = xx
-  old_y = yy
-  done = 0
-  while not done do begin
-    cursor,xx,yy, /data,/nowait
-    change_pos = abs(old_x-xx)
-    old_x = xx
-    if change_pos ne 0 then print, time_string(xx), change_pos
-    done = !MOUSE.button eq 1
-  endwhile
+  
+  if keyword_set(pkcursor) then asi_peakocursor, pk_str
+  
 
   stop  
 end
@@ -218,10 +211,15 @@ end
 fixplot
 !x.omargin=[0,15]
 window, 0, xsize=500, ysize=500
-dat = asi_peakogram('gill_rego', '2015-02-02/10:20:00', 20, /minutes,n_longitude=1, min_elevation=15)
-asi_peakoplot, dat, /log, yrange=[64,67]
+restore,'D:\data\asi_tools\peakoplot_test.sav',/verbose
+asi_peakoplot, dat, /log, yrange=[64,67],/pkcursor
 
 stop
+
+!x.omargin=[0,15]
+window, 0, xsize=500, ysize=500
+dat = asi_peakogram('gill_rego', '2015-02-02/10:20:00', 20, /minutes,n_longitude=1, min_elevation=15)
+
 
 fixplot
 !x.omargin=[0,15]
