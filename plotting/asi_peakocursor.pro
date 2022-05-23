@@ -128,7 +128,7 @@ pro asi_peakocursor, $
       t_pos = !C
       
       ;plot that image      
-      c_image = rotate(reform(img[*,*,t_pos]),pk_str.i_rot)
+      c_image = rotate(reform(img[*,*,t_pos]),pk_str.asi_rotated_by)
       c_image = bytscl(alog10(c_image),/nan,min=alog10(pmin),max=alog10(pmax)) 
       loadct,l_ct,/silent
       tvscale, c_image,/overplot

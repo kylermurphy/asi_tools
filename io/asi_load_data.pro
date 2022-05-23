@@ -22,6 +22,7 @@
 ;     Download/load Gillam REGO data
 ;     dat = asi_load_data('gill_rego', '2015-02-02/10:00:00', 40, /minutes)
 ;     dat = asi_load_data('gill', '2015-02-02/10:00:00', 40, /minutes, /rego)
+;     dat = asi_load_data('gill_rego', '2015-02-02/10:00:00', 40, /minutes, /local)
 ;     
 ;     Download/load Gillam THEMIS and Gillam REGO data
 ;     dat = asi_load_data(['gill_themis','gill_rego'], '2018-08-01/06:00:00', 2, /minutes)
