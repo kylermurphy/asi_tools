@@ -1,4 +1,7 @@
 ;+
+; :Function:
+;     asi_nt
+;     
 ; :Description:
 ;    Provide blank ticks to plot axis'
 ;
@@ -9,8 +12,9 @@
 ;    axis - axis number, 0 for X axis, 1 for Y axis, 2 for Z axis
 ;    index - tick mark index (indices start at 0)
 ;    time - data value at the tick mark (a double-precision floating point value)
-;
-;
+;    
+; :Return:
+;    Blank ticks for axis when plotting
 ;
 ; :Author: krmurphy - kylemurphy.spacephys@gmail.com
 ;-
