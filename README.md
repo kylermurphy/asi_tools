@@ -107,5 +107,15 @@ dat = asi_peakogram(['snkq_themis','gill_rego','fsim_themis'],'2015-02-02/10:20:
 thm_init
 tplot,'*'
 
+; generate peakogram from three stations
+; plot peakogram with different options for 
+;  each station
+; call pkcursor on one station
+
+dat = asi_peakogram(['snkq_themis','kuuj_themis','gill_themis'], '2011-04-09/04:00:00', 45, /minutes,n_longitude=2, min_elevation=10)
+asi_peakoplot, dat,/log, imin=[3000,3000,3000], imax=[10000,10000,10000],yrange=[[62,69],[63,68],[62,72]]
+
+window, 0
+asi_peakoplot, dat.gill_themis,/log
 
 ```

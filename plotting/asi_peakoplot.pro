@@ -252,7 +252,7 @@ pro asi_peakoplot, $
   endfor
   
   
-  if keyword_set(pkcursor) then asi_peakocursor, pk_str
+  if keyword_set(pkcursor) then asi_peakocursor, pk_str, float(cmin), float(cmax)
   
 end
 

@@ -18,7 +18,9 @@
 ;    asi_peakoplot, dat, /log, yrange=[64,67], /pkcursor
 ;    
 ; :Params:
-;    pk_str - strunc
+;    pk_str - structure returned from asi_peakogram 
+;    cmin - min intensity for image plotting
+;    cmax - max intensity for image plotting
 ;    
 ; :Defaults:
 ;    None
@@ -29,7 +31,9 @@
 ; :Author: krmurphy - kylemurphy.spacephys@gmail.com
 ;-
 pro asi_peakocursor, $
-  pk_str ; a structure or structure of structures containing the output from asi_peakogram
+  pk_str, $ ; a structure or structure of structures containing the output from asi_peakogram
+  cmin, $ ; min for plotting
+  cmax ; max for plotting
  
   if pk_str.asi_array eq 'REGO' then l_ct=3 else l_ct=8
   
@@ -72,6 +76,10 @@ pro asi_peakocursor, $
   pmin=b_img[s_img[s_img.length*0.25]]
   pmax=b_img[s_img[s_img.length*0.99]]
   if pmax gt 10000 then pmax=10000
+  
+  ; used passed values instead
+  pmin=cmin
+  pmax=cmax
   
   ;setup the plotting window
   window,30, xsize=400, ysize=400
