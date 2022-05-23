@@ -76,6 +76,8 @@ pro asi_peakoplot, $
   pk_tags = tag_names(pk_str)
   ns_pos = where(pk_tags eq 'N_SITES',nc)
   if nc gt 0 then begin
+    if size(pk_str.(p_sites[i]),/type) ne 8 then continue 
+    
     p_sites = where(pk_tags ne 'N_SITES',pc)
     n_sites = pk_str.n_sites
     
