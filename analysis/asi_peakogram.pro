@@ -116,6 +116,8 @@
 ;     i_rot - rotation applied to images when loaded
 ;     skymap_rotated_by - rotation applied to skymap
 ;     ele_mask - mask applied for elevation
+;     _EXTRA - extra keywords that are passed to asi_load_data()
+;              allows you to load data locally using /local 
 ;     
 ; :Author: krmurph1
 ;
