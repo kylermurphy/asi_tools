@@ -113,8 +113,8 @@
 ;     lat_min - minimum lat
 ;     lat_max - maximum lat:max(lat_arr[x_pos,y_pos])
 ;     alt - altitude used in skymap
-;     i_rot - rotation applied to images when loaded
-;     skymap_rotated_by - rotation applied to skymap
+;     is_rot - was the image rotated rotation applied to images when loaded
+;     rot_by - rotation applied to skymap and images
 ;     ele_mask - mask applied for elevation
 ;     _EXTRA - extra keywords that are passed to asi_load_data()
 ;              allows you to load data locally using /local 
@@ -410,7 +410,7 @@ function asi_peakogram, $
     pk_amp:pk_amp_arr, pk_pos:pk_pos_arr, n_lon:n_lon, n_pk:n_pks, $
     x_pos:x_pos, y_pos:y_pos, asi_x:asi_paths.asi_x, asi_y:asi_paths.asi_y, asi_paths:paths, $
     lat_min:min(lat_arr[x_pos,y_pos]), lat_max:max(lat_arr[x_pos,y_pos]), alt:alt, $
-    i_rot:asi_paths.skymap_rotated_by, ele_mask:ele_mask}
+    is_rot:asi_paths.skymap_is_rotated, rot_by:asi_paths.skymap_rotated_by, ele_mask:ele_mask}
   
 end
 
