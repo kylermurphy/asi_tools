@@ -192,8 +192,7 @@ pro asi_peakoplot, $
   ; used
   if op eq 0 then plot, [x_min,x_max],[y_min,y_max], /nodata, _EXTRA=ex else offset=0
   
-  ;scale symbol sizes
-  sym_sz = normalize_vec(pk_str.pk_amp)*(sz_max-sz_min)+sz_min
+  
   
   ; find the scales for plotting if not set
   ; and log values if log is set
@@ -201,6 +200,9 @@ pro asi_peakoplot, $
   if keyword_set(imin) then cmin=imin else cmin=min(pk_str.pk_amp)
   
   crange = [cmin,cmax]
+  
+  ;scale symbol sizes
+  sym_sz = normalize_vec(pk_str.pk_amp,vmin=cmin,vmax=cmax)*(sz_max-sz_min)+sz_min
   
   if keyword_set(log) then begin
     crange=alog10([cmin,cmax])
