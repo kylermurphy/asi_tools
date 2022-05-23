@@ -1,3 +1,33 @@
+;+
+; :Function:
+;    asi_peakocursor
+; 
+; :Description:
+;    Plot the auroral image and peak location in conjunction
+;    with the timeseries from asi_peakoplot.
+;    
+; :Calling Sequence:
+;    asi_peakocursor, structure returned from asi_peakogram 
+;        
+; :Example:        
+;    
+;    Peakoplot for a single station and calling pkcursor to show auroral
+;    images and peak locations
+;        
+;    dat = asi_peakogram('gill_rego', '2015-02-02/10:20:00', 20, /minutes,n_longitude=1, min_elevation=15)
+;    asi_peakoplot, dat, /log, yrange=[64,67], /pkcursor
+;    
+; :Params:
+;    pk_str - strunc
+;    
+; :Defaults:
+;    None
+;    
+; :Return:
+;    None      
+;
+; :Author: krmurphy - kylemurphy.spacephys@gmail.com
+;-
 pro asi_peakocursor, $
   pk_str ; a structure or structure of structures containing the output from asi_peakogram
  
@@ -116,16 +146,3 @@ pro asi_peakocursor, $
   
   
 end
-
-;MAIN
-;testing 
-fixplot
-!x.omargin=[0,15]
-window, 0, xsize=500, ysize=500
-restore,'D:\data\asi_tools\peakoplot_test.sav',/verbose
-asi_peakoplot, dat, /log, yrange=[64,67],/pkcursor
-
-
-
-end
-

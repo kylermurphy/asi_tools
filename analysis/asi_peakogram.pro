@@ -109,7 +109,13 @@
 ;     n_pk - number of peaks 
 ;     asi_x - image size of the asi in the x-direction
 ;     asi_y - image size of the asi in the y-direction
-;              
+;     asi_paths - paths to the asi images loaded
+;     lat_min - minimum lat
+;     lat_max - maximum lat:max(lat_arr[x_pos,y_pos])
+;     alt - altitude used in skymap
+;     i_rot - rotation applied to images when loaded
+;     skymap_rotated_by - rotation applied to skymap
+;     ele_mask - mask applied for elevation
 ;     
 ; :Author: krmurph1
 ;

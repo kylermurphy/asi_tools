@@ -1,3 +1,58 @@
+;+
+; :Function:
+;     asi_peakoplot
+;     
+; :Description:
+;    Plot the auroral peaks along each longitude slice as
+;    a function of time from the structure returned from 
+;    asi_peakogram.
+;    
+;    Will plot multiple stations if multiple stations
+;    where passed to asi_peakogram and the return 
+;    structure contatins multiple stations.
+;    
+; :Calling Sequence:
+; 
+;   asi_peakoplot, pk_str
+;    
+; :Example:        
+;    
+;    Peakoplot for a single station and calling pkcursor to show auroral
+;    images and peak locations
+;        
+;    dat = asi_peakogram('gill_rego', '2015-02-02/10:20:00', 20, /minutes,n_longitude=1, min_elevation=15)
+;    asi_peakoplot, dat, /log, yrange=[64,67], /pkcursor
+;    
+;    Peakoplot for multiple stations setting keywords for each stations 
+;    
+;    dat = asi_peakogram(['gill_rego','fsim_themis'] '2015-02-02/10:20:00', 20, /minutes,n_longitude=1, min_elevation=15)
+;    asi_peakoplot, dat, /log, imin=[700,6000], imax=[1100,10000],yrange=[[64,67],[56,70]], sym_ct=[62,63]
+;
+; :Params:
+;    pk_str - structure returned from asi_peakogram   
+;
+; :Keywords:
+;    trange - time range for plotting
+;    imin - minimum intensity for plotting
+;    imax - maximum intensity for plotting
+;    sym_ct - color table for plotting auroral intensity
+;    ct_file - color table file to load color table
+;    log - log the intensity
+;    overplot - plot the peakogram on the current plot
+;    pkcursor - implement plotting of the 2D asi image and peaks in aurora
+;        brightness at each time stamp. 
+;               Can only be when a single station is passed. This is to
+;        reduce memory ussage when loading large amounts of images.
+;    _EXTRA - passed to plot procedure to set plot keywords, e.g., yrange
+;    
+; :Defaults:
+;    None
+;    
+; :Return:
+;    None      
+;
+; :Author: krmurphy - kylemurphy.spacephys@gmail.com
+;-
 pro asi_peakoplot, $
   pk_str, $ ; a structure or structure of structures containing the output from asi_peakogram
   trange=trange, $ ; time range to plot
@@ -95,12 +150,7 @@ pro asi_peakoplot, $
     sz_min = 0.1
     sz_max = 1.5
   endif
-  
-  ;create a filled circle symbol
-  phi=findgen(32)*(!PI*2/32.)
-  phi = [phi, phi(0)]
-  usersym, cos(phi), sin(phi), /fill
-  
+    
   if keyword_set(trange) then xrange=time_double(trange) else begin   
     x_min = min(pk_str.pk_time,max=x_max,/nan)
     xrange = [x_min,x_max] 
