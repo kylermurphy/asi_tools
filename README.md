@@ -51,7 +51,9 @@ Download/loading examples
 ```idl
 ; read themis data
 dat = asi_load_data('rank', '2017-09-15/02:30:00', 30, /minutes)
-dat = asi_load_data('gill_themis', '2007-03-07/05:52:00', 8, /minutes)
+
+; read themis data from local directory
+dat = asi_load_data('gill_themis', '2007-03-07/05:52:00', 8, /minutes, /local)
 
 ; return only the local paths to some themis data
 dat = asi_load_data('gill_themis', '2007-03-07/05:52:00', 8, /minutes, /path_only)
@@ -75,6 +77,8 @@ for i=0L, dat.asi_frames do tvscl,alog10(reform((dat.asi_img[*,*,i])))
 
 The peakogram searches for peaks in auroral brightness at fixed longitudes. It allows users to investigate the latitudinal motion and evolution of the aurora. In order to be able to run on mutliple stations and multiple arrays the functionality is slightly different then that of loading data using ```asi_load_data```. Namely stations must be passed using the 4 chracter site code followed by an underscore and the array, ```????_themis```. 
 
+Peakograms can be easily plotted using ```peakoplot, pk_str``` where ```pk_str``` is the structure returned from ```asi_peakogram( )```. ```peakoplot``` will plot multiple stations, overplot on the existing plot, and (for single stations) will allow the user to plot the asi image and peak in brightness for the time corresponding to the position of the cursor in peakoplot.
+
 Examples
 
 ```idl
@@ -84,14 +88,24 @@ dat = asi_peakogram('gill_rego', '2015-02-02/10:00:00', 60, /minutes, n_longitud
 !x.omargin=[0,15]
 asi_peakoplot, dat, yrange=[64,67]
 
+; same as above but load data locally (don't search web for data)
+; and plot asi images and peak locations using pkcursor
+dat = asi_peakogram('gill_rego', '2015-02-02/10:00:00', 60, /minutes, n_longitude=2, min_elevation=15, /local)
+asi_peakoplot, dat, yrange=[64,67], /pkcursor 
+
 ; generate a peakogram from SNKQ THEMIS, GILL REGO, FSIM THEMIS
 ; using different parameters for each station e.g., FOR SNKQ use 
-; altitude1, 3 peaks, 3 longitudes, smooth over 5 pixels, do not 
+; altitude 1, 3 peaks, 3 longitudes, smooth over 5 pixels, do not 
 ; remove the moon, and set minimum elevation to 10 degrees. 
 ; add a tplot like plot for all peakograms
 
-dat = asi_peakogram(['snkq_themis','gill_rego','fsim_themis'],'2015-02-02/10:00:00', 60, $
-             alt=[1,2,1], n_peaks=[3,2,2], n_longitudes=[3,1,1], , $
+dat = asi_peakogram(['snkq_themis','gill_rego','fsim_themis'],'2015-02-02/10:20:00', 20, /minutes, $
+             alt=[1,2,1], n_peaks=[3,2,2], n_longitudes=[3,1,1], $
              px_smooth=[5,10,11], moon=[0,0,0], min_elevation=[10,10,10], /add_tplot)
+
+;setup tplot for plotting
+thm_init
+tplot,'*'
+
 
 ```
