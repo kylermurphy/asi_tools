@@ -70,13 +70,18 @@ pro asi_peakoplot, $
   
   asi_init
   
+  if size(pk_str,/type) ne 8 then begin
+    print, 'No data in the peakogram structure'
+    return
+  endif
+  
   ;set up multi plot for loop here
   ; check for tag names and if multiple
   ; sites exist
   pk_tags = tag_names(pk_str)
   ns_pos = where(pk_tags eq 'N_SITES',nc)
   if nc gt 0 then begin
-    if size(pk_str.(p_sites[i]),/type) ne 8 then continue 
+    
     
     p_sites = where(pk_tags ne 'N_SITES',pc)
     n_sites = pk_str.n_sites
@@ -142,12 +147,8 @@ pro asi_peakoplot, $
   if keyword_set(sz_min) then sz_min = sz_min else sz_min = 0.1
   if keyword_set(sz_max) then sz_max = sz_max else sz_max = 1.5
   if keyword_set(overplot) then op = 1 else op = 0
-  
-  if size(pk_str,/type) ne 8 then begin
-    print, 'No data in the peakogram structure'
-    return 
-  endif
-  
+ 
+ 
   if sz_min gt sz_max then begin
     sz_min = 0.1
     sz_max = 1.5
