@@ -235,7 +235,7 @@ function asi_load_data, $
   
   ;create path for downloading
   dir = filepath(dir,root_dir=!asi_tools.data_dir)
-  paths = strarr(t_arr.length)
+  paths = list()
   
   ;loop through minute time array
   ; search url for file, download, and save
@@ -266,12 +266,14 @@ function asi_load_data, $
       fn= file_basename(full_url)
       ;search fo the local file
       lp = file_search(dl_dir+fn,count=fc)
-      if fc eq 1 then paths[i] = lp[0]
+      if fc eq 1 then paths.add, lp[0]
     endif else begin
-      paths[i] = spd_download(remote_file=full_url,local_path=dl_dir, no_update=1, _EXTRA=ex)
+      paths.add, spd_download(remote_file=full_url,local_path=dl_dir, no_update=1, _EXTRA=ex)
     endelse
     
   endfor
+  
+  paths = paths.ToArray()
   
   ; check if any data was loaded
   ;if not return only paths=-1
