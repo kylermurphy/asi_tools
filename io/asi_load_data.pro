@@ -274,8 +274,10 @@ function asi_load_data, $
   endfor
   
   paths = paths.ToArray()
+  ;check if paths are directories and not files
   path_dir = file_test(paths,/directory)
   good_path = where(path_dir eq 0, pc)
+  ;keep only paths that are files
   if pc gt 0 then paths = paths[good_path]
   
   ; check if any data was loaded
