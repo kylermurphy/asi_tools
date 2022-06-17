@@ -116,6 +116,6 @@ dat = asi_peakogram(['snkq_themis','kuuj_themis','gill_themis'], '2011-04-09/04:
 asi_peakoplot, dat,/log, imin=[3000,3000,3000], imax=[10000,10000,10000],yrange=[[62,69],[63,68],[62,72]]
 
 window, 0
-asi_peakoplot, dat.gill_themis,/log
+asi_peakoplot, dat.gill_themis,/log, /pkcursor
 
 ```
