@@ -3,11 +3,14 @@ Code for analyzing ASI data and producing some nice ASI plots.
 
 # Setup
 
-Add the asi_tools directory (and subdirectory) to the IDL Path.
+Add the asi_tools directory and subdirectories to the IDL Path.
 
 Easiest via the IDL IDE 
-Windows -> Preferences
+```
+Windows -> Preferences 
+
 IDL -> Paths
+```
 
 Running ```asi_init``` will initialize the system variable ```!asi_tools``` which is used to define the url's for downloading data and the local directory ```data_dir``` for storing and downloading data.
 
@@ -17,7 +20,7 @@ Running ```asi_init``` will initialize the system variable ```!asi_tools``` whic
 
 ## Initialization
 
-Initialize the library for the first time. And set idl system variable ```!asi_tools``` which specifies a number of requirements including the directory to download data and the url's where data is accessed 
+Initialize the library for the first time (below). And set idl system variable ```!asi_tools``` which specifies a number of requirements including the directory to download data and the url's where data is accessed. 
 
 ```idl
 asi_init
@@ -26,6 +29,8 @@ asi_init
 Enter value for - DATA_DIR: ENTER YOUR LOCAL DATA DIRECTORY, e.g., D:\data\asi_tools
 
 ```
+
+Running ```asi_init``` for the the first time will generate the file ```asi_tools\config\asi_config.txt```, a text file which stores the ```!asi_tools``` variables for subsequent loading.
 
 ## Skymaps
 
