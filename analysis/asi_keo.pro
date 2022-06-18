@@ -1,3 +1,8 @@
+; moon doesn't do anything yet
+; may need to return the pixels 
+; and a single image to show 
+; where the keogram comes from
+
 function asi_keo, $ 
   site, $ ; ASI site to load/download
   t0, $ ; star time for loading/downloading
@@ -17,6 +22,12 @@ function asi_keo, $
   
   asi_init
   
+  
+  if n_lat gt 1 and n_lon gt 1 then begin
+    message,'One of n_lat or n_lon must be 1 to create a keogram'
+  endif
+
+  
   ;set altitude value
   if size(alt,/type) ne 0 then alt = alt else alt = 1
   if alt gt 2 or alt lt 0 then begin
@@ -30,10 +41,10 @@ function asi_keo, $
   
   ;get skymap and paths to data
   dprint, dlevel=0, 'Loading Skymap and retreiving data and paths for '+site
-  asi_paths = asi_load_data(site,t0,dt,minutes=minutes,hours=hours, no_load=1,_EXTRA=ex)
+  asi_paths = asi_load_data(site,t0,dt,minutes=minutes,hours=hours,no_load=1,_EXTRA=ex)
   
   
-  stop
+
   ;no data returned
   if size(asi_paths,/type) eq 2 then return, 0
   
@@ -72,22 +83,22 @@ function asi_keo, $
   endfor
   
   ;use the pix_val.pix_loc to generate the keogram
-  img_keo = fltarr(t_keo.length,n_elements(pix_val.pix_num))
+  keo_sz  = n_elements(pix_val.pix_num)
+  img_keo = fltarr(t_keo.length,keo_sz)
   ;loop over pixel bins from pix_val to 
   ; generate keogram  
-  for i=0L, n_elements(pix_val.pix_num)-1 do begin
+  for i=0L, keo_sz-1 do begin
     gd_pix = where(pix_val.pix_loc[i,*] ge 0, gc, /L64)
     if gc lt 1 then continue
     img_keo[*,i] = mean(img_1d[pix_val.pix_loc[i,gd_pix],*],dimension=1)
   endfor
   
   ;create return structure here
-            
-              
-  stop
   
-  return,0
-  
+  r_str = {asi_site:asi_paths.asi_site, asi_array:asi_paths.asi_array, asi_t:t_keo, $ 
+           asi_keogram:img_keo, keo_coor:pix_val.coord_axis}
+           
+  return, r_str 
 end
 
 
@@ -96,7 +107,7 @@ end
 ;main
 ; testing
 
-pos1 = asi_keo('gill_rego', '2015-02-02/10:00:00', 60, 100, 62, 68, 1, -26, -25, /minutes, min_elevation=15)
+pos1 = asi_keo('gill_rego', '2015-02-02/10:00:00', 60, 100, 62, 68, 1, -26, -25, /minutes, min_elevation=15, /local)
 pos1 = asi_keo('gill_themis', '2011-04-09/04:00:00', 30, 100, 62, 68, 1, -26, -25, /minutes, min_elevation=15, /local)
 pos2 = asi_keo('gill_rego', '2015-02-02/10:20:00', 20, 1, 65.5, 66, 40, -30, -20, /minutes, min_elevation=15, /local)
 
