@@ -29,9 +29,7 @@ function asi_keopix, $
     if m_size[0] eq 2 and m_size[1] eq a_size[1] and m_size[2] eq a_size[2] then begin
       asi_lat = asi_lat*mask
       asi_lon = asi_lon*mask
-    endif
-    
-    
+    endif 
   endif
    
   
@@ -100,14 +98,15 @@ function asi_keopix, $
   ;-1 corresponds to no pixel locations
   ; because different lat/lon bins have
   ; different number of pixels
-  
   pix_val = lonarr(pix_num.length,max(pix_num))
   pix_val[*] = -1
   for i=0L, pix_num.length-1 do pix_val[i,0:pix_num[i]-1] = pix_loc[i]
   
+  coord_axis = {lat_bin:lat_bin, lat_min:min_lat, lat_max:max_lat, lat_low:lat_low, lat_up:lat_up, $
+                lon_bin:lon_bin, lon_min:min_lon, lon_max:max_lon, lon_low:lon_low, lon_up:lon_up}
   
   r_str = {pix_loc:pix_val, pix_num:pix_num, lower_lat:l_lat, upper_lat:u_lat, $
-          lower_lon:l_lon, upper_lon:u_lon, bin_img:img}
+          lower_lon:l_lon, upper_lon:u_lon, bin_img:img, coord_axis:coord_axis}
   
   return, r_str
   
