@@ -3,6 +3,9 @@
 ; and a single image to show 
 ; where the keogram comes from
 
+; do the above here with a keyword that will be
+; forwarded from nskeo and ewkeo
+
 function asi_keo, $ 
   site, $ ; ASI site to load/download
   t0, $ ; star time for loading/downloading
@@ -75,6 +78,9 @@ function asi_keo, $
     img_temp = make_array(asi_paths.asi_x*asi_paths.asi_y,t_img.length,type=img_t)
     for j=0L, t_img.length-1 do begin
       temp = rotate(reform(img[*,*,j]),asi_paths.skymap_rotated_by)
+      ; grab a single image to show where the keogram
+      ;is take from
+      if i eq 0 and j eq 0 then asi_img = temp
       img_temp[*,j] = temp[*]
     endfor
     
@@ -92,6 +98,8 @@ function asi_keo, $
     if gc lt 1 then continue
     img_keo[*,i] = mean(img_1d[pix_val.pix_loc[i,gd_pix],*],dimension=1)
   endfor
+  
+  ;add keo plotting location here
   
   ;create return structure here
   
