@@ -28,9 +28,42 @@ function asi_nskeo, $
   ;structure within the main is the keogram
   ;for that station
   if site.length gt 1 then begin
+
     r_str = { }
     for i=0L, site.length-1 do begin
+      asi_loading = string(site[i])
       
+      ;check if keywords are set
+      ; if they are the same size as the number of asi's passed
+      ; then pass them in order with the asi loaded
+      ; if they aren't the same size pass the first element
+      ; if they haven't been set set the passed values to null
+      
+      if n_lat.length eq site.length then n_lat_p = n_lat[i] else n_lat_p=n_lat[0]
+      if min_lat.length eq site.length then min_lat_p = min_lat[i] else min_lat_p=min_lat[0]
+      if max_lat.length eq site.length then max_lat_p = max_lat[i] else max_lat_p=max_lat[0]
+      if min_lon.length eq site.length then min_lon_p = min_lon[i] else min_lon_p=min_lon[0]
+      if max_lon.length eq site.length then max_lon_p = max_lon[i] else max_lon_p=max_lon[0]
+      
+      if size(alt,/type) eq 0 then alt_pass=!null $
+        else if n_elements(alt) eq site.length then alt_pass=alt[i] else alt_pass=alt[0]
+      if size(moon,/type) eq 0 then m_pass=!null $
+        else if n_elements(moon) eq site.length then m_pass=moon[i] else m_pass=moon[0]
+      if size(min_elevation,/type) eq 0 then ele_pass=!null $
+        else if n_elements(min_elevation) eq site.length then ele_pass=min_elevation[i] $
+        else ele_pass=min_elevation[0]
+      
+      ;get keo
+      r_dat = asi_nskeo(string(asi_loading), t0, dt, $
+                n_lat_p,min_lat_p,max_lat_p, $
+                min_lon_p,max_lon_p, $
+                minutes=minutes, hours=hours, $
+                alt=alt_pass, moon=m_pass, $
+                min_elevations=ele_pass, $
+                add_tplot=add_tplot, _EXTRA=ex)
+              
+                
+      r_str = create_struct(r_str,asi_loading,r_dat)
     endfor
     
     return, r_str
@@ -43,6 +76,9 @@ function asi_nskeo, $
     n_lon,min_lon,max_lon, $ 
     minutes=minutes,hours=hours, $
     alt=alt,moon=moon,min_elevation=min_elevation,_EXTRA=ex)
+  
+  ;if no keogram was produced return 0
+  if size(keo,/type) ne 8 then return, 0  
    
   lat_axis = (keo.keo_coor.lat_low+keo.keo_coor.lat_up)/2.
   lat_range = [keo.keo_coor.lat_min,keo.keo_coor.lat_max]
@@ -60,7 +96,7 @@ function asi_nskeo, $
       ZTITLE:'Intensity', $
       ZLOG:1, X_NO_INTERP:1, Y_NO_INTERP:1, $
       OVERLAY:0}
-    limits = {ZLOG:1, YLOG:1, YRANGE:lat_range, YSTYLE:1}
+    limits = {ZLOG:1, YLOG:0, YRANGE:lat_range, YSTYLE:1}
 
     name = r_str.asi_site+'_'+r_str.asi_array
     store_data,name, data=d, dlimits=dlimits, limits=limits 
@@ -72,6 +108,14 @@ end
 ;main
 ; testing
 
-pos1 = asi_nskeo('gill_rego', '2015-02-02/10:00:00', 60, 100, 62, 68, -26, -25, /minutes, min_elevation=15, /local, /add_tplot)
+;keo_1 = asi_nskeo(['gill_rego'], '2015-02-02/10:00:00', 60, 100, 62, 68, -26, -25, /minutes, min_elevation=15, /add_tplot)
+
+;keo_2 = asi_nskeo(['fsmi_themis','fsim_themis'],'2015-01-29:07:00:00', 120, $
+;           [100,100],[66,66],[68,68],[-53,-66],[-52,-65], $
+;           /minutes, min_elevation=[15,15], /add_tplot)
+
+keo_3 = asi_nskeo(['kuuj_themis','snkq_themis','gill_themis'],'2011-04-09:04:00:00', 60, $
+           [100,100,100],[62,62,62],[72,72,72],[12.5,-5,-30],[13.5,-3,-29], $
+           /minutes, min_elevation=[15,15,15], /add_tplot)
 
 end
