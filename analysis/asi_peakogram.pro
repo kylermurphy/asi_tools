@@ -394,7 +394,7 @@ function asi_peakogram, $
             ZTITLE:'Intensity', $
             ZLOG:1, X_NO_INTERP:1, Y_NO_INTERP:1, $
             OVERLAY:0}
-      limits = {ZLOG:1, YLOG:1, YRANGE:[lat_min,lat_max], YSTYLE:1}
+      limits = {ZLOG:1, YLOG:0, YRANGE:[lat_min,lat_max], YSTYLE:1}
       
       name = asi_paths.asi_site+'_'+asi_paths.asi_array+'_lon_'+strtrim(i,2)
       
