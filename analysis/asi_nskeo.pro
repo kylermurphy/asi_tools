@@ -12,6 +12,7 @@ function asi_nskeo, $
   alt=alt, $ ; altidue to use for lat and lon values
   moon = moon, $ ; remove moon
   min_elevation = min_elevation, $ ; minimum elvation of plot, default is 10
+  keo_pos = keo_pos, $ ; plot the position of the keogram and keogram bins
   add_tplot=add_tplot, $
   _EXTRA=ex
   
@@ -60,7 +61,7 @@ function asi_nskeo, $
                 minutes=minutes, hours=hours, $
                 alt=alt_pass, moon=m_pass, $
                 min_elevations=ele_pass, $
-                add_tplot=add_tplot, _EXTRA=ex)
+                keo_pos=keo_pos, add_tplot=add_tplot, _EXTRA=ex)
               
                 
       r_str = create_struct(r_str,asi_loading,r_dat)
@@ -75,7 +76,8 @@ function asi_nskeo, $
     n_lat,min_lat,max_lat, $
     n_lon,min_lon,max_lon, $ 
     minutes=minutes,hours=hours, $
-    alt=alt,moon=moon,min_elevation=min_elevation,_EXTRA=ex)
+    alt=alt,moon=moon,min_elevation=min_elevation, $
+    keo_pos=keo_pos,_EXTRA=ex)
   
   ;if no keogram was produced return 0
   if size(keo,/type) ne 8 then return, 0  
