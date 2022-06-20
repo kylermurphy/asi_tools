@@ -127,9 +127,13 @@ asi_peakoplot, dat.gill_themis,/log, /pkcursor
 
 ## Generating Keograms
 
-```asi_tools``` has the ability to generate North-South and East-West keograms where the keograms are in equally spaced geomagnetic coordiantes, e.g., North-South keograms in geomagnetic latitude and East-West keograms in geomagnetic longitude. The keograms are generated using the skymap pixel positions and can be calculated for any of the altitudes of the skyamp (90, 100, 150 km). North-South keograms are generated with ```asi_nskeo()``` and East-West keograms are generated with ```asi_ewkeo()```. Similar to ```asi_peakogram()```, in order to easily generate keograms over a fixed time frame from multiple stations apart of different arrays both keogram functions use site names following the format ```????_array```, where ```????``` is the four letter station code and ```array``` is the array to load the station data from, e.g., ```themis```, ```rego```. Both keogram functions return an IDL structure which has contains metadata information (station name and array), the keogram, the y-axis (latitude or longitude), the x-axis (time) and the y-range. If multiple stations are passed then a structure of structures is returned. Keograms can be easily plotted using by setting the ```add_tplot``` keyword which stores the keograms as tplot variables. Additional plotting functionality will be added in the future. 
+```asi_tools``` has the ability to generate North-South and East-West keograms where the keograms are in equally spaced geomagnetic coordiantes, e.g., North-South keograms in geomagnetic latitude and East-West keograms in geomagnetic longitude, rather then pixel coordinates. The keograms are generated using the skymap pixel positions and can be calculated for any of the skymap altitudes(90, 100, 150 km). North-South keograms are generated with ```asi_nskeo()``` and East-West keograms are generated with ```asi_ewkeo()```. Similar to ```asi_peakogram()```, in order to easily generate keograms over a fixed time frame from multiple stations apart of different arrays both keogram functions use the following format for station names ```????_array```, where ```????``` is the four letter station code and ```array``` is the array to load the station data from, e.g., ```themis```, ```rego```. 
 
-The the advantage of ```asi_tools``` is that the keograms have an equally spaced y-axis (latitude or longitude) allowing for quantifiable analysis (e.g. power spectral density/Fourier analysis). For each function the user specifies the limits of the keogram, min and max geomagnetic latitude/longitude, and the number of bins to divide the latitudinal region (N-S keogram) or longitidinal region (E-W) keogram into. Both keogram functions also offer the utility to plot the region of keogram and keogram bins overtop of an ASI image using the ```keo_pos``` keyword. A number of examples are below. 
+Both keogram functions return an IDL structure which  contains metadata information (station name and array), the keogram, the y-axis (latitude or longitude), the x-axis (time) and the y-range. If multiple stations are passed then a structure of structures is returned. 
+
+Keograms can be easily plotted using by setting the ```add_tplot``` keyword which stores the keograms as tplot variables. Additional plotting functionality will be added in the future. 
+
+The the advantage of ```asi_tools``` is that the keograms have an equally spaced y-axis (latitude or longitude) allowing for quantifiable analysis (e.g. power spectral density/Fourier analysis). For each function the user specifies the limits of the keogram, min and max geomagnetic latitude/longitude, and the number of bins to divide the latitudinal region (N-S keogram) or longitidinal region (E-W) into. Both keogram functions also offer the utility to plot the region of keogram and keogram bins overtop of an ASI image using the ```keo_pos``` keyword. Two examples are below. 
 
 ### Examples
 
@@ -145,7 +149,5 @@ gill_keo = asi_nskeo('gill_rego', '2015-02-02/10:00:00', 60, 100, 62, 68, -26, -
 ; the Tian et al. 2022 paper
 
 gbay_keo = asi_ewkeo('gbay_themis', '2015-02-18/01:55:00', 25, 50, 18, 29, 61, 63, /minutes, min_elevation=15, /add_tplot,/keo_pos)
-
-
 
 ```
