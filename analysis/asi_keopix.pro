@@ -65,28 +65,24 @@ function asi_keopix, $
   for i=0L, lat_low.length-1 do begin
     ;get the latitude pixes
     g_lat = where(asi_lat ge lat_low[i] and asi_lat lt lat_up[i],c_lat, /L64)
-    if c_lat lt 1 then continue
-    
+     
     for j=0L, lon_low.length-1 do begin
       g_lon = where(asi_lon[g_lat] ge lon_low[j] and asi_lon[g_lat] lt lon_up[j], c_lon, /L64)
 
-      if c_lon lt 1 then continue
-      
       pix_loc.add, g_lat[g_lon]
       pix_num.add, c_lon
       l_lat.add, lat_low[i]
       u_lat.add, lat_up[i]
       l_lon.add, lon_low[j]
       u_lon.add, lon_up[j]
-      
+
       img[g_lat[g_lon]]=c
+      
       c++    
     endfor
   endfor
   
   ;unravel arrays here 
-  
-  
   img=bytscl(img,min=0,max=c-1)
   
   pix_num = pix_num.ToArray()
@@ -95,12 +91,14 @@ function asi_keopix, $
   l_lon = l_lon.ToArray()
   u_lon = u_lon.ToArray()
   
+  if size(pix_num,/type) eq 0 then return,0
+  
   ;-1 corresponds to no pixel locations
   ; because different lat/lon bins have
   ; different number of pixels
   pix_val = lonarr(pix_num.length,max(pix_num))
   pix_val[*] = -1
-  for i=0L, pix_num.length-1 do pix_val[i,0:pix_num[i]-1] = pix_loc[i]
+  for i=0L, pix_num.length-1 do if pix_num[i] eq 0 then continue else pix_val[i,0:pix_num[i]-1] = pix_loc[i]
   
   coord_axis = {lat_bin:lat_bin, lat_min:min_lat, lat_max:max_lat, lat_low:lat_low, lat_up:lat_up, $
                 lon_bin:lon_bin, lon_min:min_lon, lon_max:max_lon, lon_low:lon_low, lon_up:lon_up}
@@ -109,7 +107,6 @@ function asi_keopix, $
           lower_lon:l_lon, upper_lon:u_lon, bin_img:img, coord_axis:coord_axis}
   
   return, r_str
-  
   
 end
 
