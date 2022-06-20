@@ -15,7 +15,7 @@
 ;     SPEDAS.
 ;     
 ; :Calling Sequence:
-;     dat = asi_Skymap_geomag(sm)
+;     dat = asi_skymap_geomag(sm)
 ;     
 ; :Params:
 ;     sm_file - skymap file to calculate coordinates for
