@@ -1,6 +1,8 @@
 # asi_tools
 Code for analyzing ASI data and producing some nice ASI plots. 
 
+[![DOI](https://zenodo.org/badge/451494983.svg)](https://zenodo.org/badge/latestdoi/451494983)
+
 # Setup
 
 Add the asi_tools directory and subdirectories to the IDL Path.
