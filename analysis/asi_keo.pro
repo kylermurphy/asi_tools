@@ -155,19 +155,3 @@ function asi_keo, $
            
   return, r_str 
 end
-
-
-
-
-;main
-; testing
-
-;pos1 = asi_keo('gill_rego', '2015-02-02/10:00:00', 60, 100, 62, 68, 1, -26, -25, /minutes, min_elevation=15, /local)
-;pos1 = asi_keo('gill_themis', '2011-04-09/04:00:00', 30, 100, 62, 68, 1, -26, -25, /minutes, min_elevation=15, /local)
-;pos2 = asi_keo('gill_rego', '2015-02-02/10:20:00', 20, 1, 65.5, 66, 40, -30, -20, /minutes, min_elevation=15, /local)
-
-keo_1 = asi_ewkeo('gbay_themis', '2015-02-18/01:50:00', 25, 40, 17, 28, 61, 63, /minutes, min_elevation=15, /add_tplot, /local, /keo_pos)
-
-end
-
-

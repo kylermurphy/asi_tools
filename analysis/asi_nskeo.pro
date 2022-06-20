@@ -106,18 +106,3 @@ function asi_nskeo, $
   
   return, r_str  
 end
-
-;main
-; testing
-
-keo_1 = asi_nskeo('gill_rego', '2015-02-02/10:00:00', 60, 100, 62, 68, -26, -25, /minutes, min_elevation=15, /add_tplot, /keo_pos)
-
-;keo_2 = asi_nskeo(['fsmi_themis','fsim_themis'],'2015-01-29:07:00:00', 120, $
-;           [100,100],[66,66],[68,68],[-53,-66],[-52,-65], $
-;           /minutes, min_elevation=[15,15], /add_tplot)
-
-;keo_3 = asi_nskeo(['kuuj_themis','snkq_themis','gill_themis'],'2011-04-09:04:00:00', 60, $
-;           [100,100,100],[62,62,62],[72,72,72],[12.5,-5,-30],[13.5,-3,-29], $
-;           /minutes, min_elevation=[15,15,15], /add_tplot)
-
-end

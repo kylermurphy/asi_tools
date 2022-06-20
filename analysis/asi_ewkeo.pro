@@ -75,7 +75,7 @@ function asi_ewkeo, $
     n_lon,min_lon,max_lon, $
     minutes=minutes,hours=hours, $
     alt=alt,moon=moon,min_elevation=min_elevation, $
-    keo_pos=keo_pos, keo_pos=keo_pos,_EXTRA=ex)
+    keo_pos=keo_pos,_EXTRA=ex)
 
   ;if no keogram was produced return 0
   if size(keo,/type) ne 8 then return, 0
@@ -102,13 +102,4 @@ function asi_ewkeo, $
   endif
 
   return, r_str
-end
-
-;main
-; testing
-
-keo_1 = asi_ewkeo('fsim_themis', '2010-02-16/07:00:00', 20, 100, -75, -62, 64, 67, /minutes, min_elevation=15, /add_tplot)
-
-
-
 end

@@ -109,18 +109,4 @@ function asi_keopix, $
   return, r_str
   
 end
-
-
-
-
-;main
-;testing
-
-
-dat = asi_load_data('gill_rego', '2015-02-02/10:00:00', 40, /minutes, /local,/no_load)
-
-pos2 = asi_keopix(dat.asi_skymap,40,60,70,1,-26,-25)
-pos1 = asi_keopix(dat.asi_skymap,1,65,66,40,-30,-20)
-
-end
   
