@@ -3,13 +3,24 @@ Code for analyzing ASI data and producing some nice ASI plots.
 
 [![DOI](https://zenodo.org/badge/451494983.svg)](https://zenodo.org/badge/latestdoi/451494983)
 
+# Table of Contents
+
+- [Setup](#setup)
+- [Requirements](#requirements)
+- [Initialization](#initialization)
+- [Skymaps](#skymaps)
+- [Downloading and Loading Data](#downloading-and-loading-data)
+- [Generating a Peakogram](#generating-a-peakogram)
+- [Generating Keograms](#generating-keograms)
+
+
 # Setup
 
 Add the asi_tools directory and subdirectories to the IDL Path.
 
 Easiest via the IDL IDE 
 ```
-Windows -> Preferences 
+Window -> Preferences 
 
 IDL -> Paths
 ```
@@ -49,7 +60,7 @@ path = asi_download_skymap(site='gill_rego')
 path = asi_download_skymap(site='gill',/rego)
 ```
 
-## Download and loading data
+## Downloading and Loading Data
 
 Downloading and loading data is done via ```asi_load_data.pro``` which downloads 1 minute PGM files from the [University of Calgary data server](https://data.phys.ucalgary.ca/) and then loads the data using ```trex_imager_readfile.pro``` which is included as part of the ```/external/``` libraries/code and can also be found on the [University of Calgary's GitHub repository](https://github.com/ucalgary-aurora/trex-imager-readfile). 
 
@@ -84,7 +95,7 @@ for i=0L, dat.asi_frames do tvscl,alog10(reform((dat.asi_img[*,*,i])))
 
 The peakogram searches for peaks in auroral brightness at fixed longitudes. It allows users to investigate the latitudinal motion and evolution of the aurora. In order to be able to run on mutliple stations and multiple arrays the functionality is slightly different then that of loading data using ```asi_load_data```. Namely stations must be passed using the 4 chracter site code followed by an underscore and the array, ```????_themis```. 
 
-Peakograms can be easily plotted using ```peakoplot, pk_str``` where ```pk_str``` is the structure returned from ```asi_peakogram( )```. ```peakoplot``` will plot multiple stations, overplot on the existing plot, and (for single stations) will allow the user to plot the asi image and peak in brightness for the time corresponding to the position of the cursor in peakoplot.
+Peakograms can be easily plotted using ```asi_peakoplot, pk_str``` where ```pk_str``` is the structure returned from ```asi_peakogram( )```. ```asi_peakoplot``` will plot multiple stations, overplot on the existing plot, and (for single stations) will allow the user to plot the asi image and peak in brightness for the time corresponding to the position of the cursor in peakoplot.
 
 ### Examples
 
@@ -129,27 +140,35 @@ asi_peakoplot, dat.gill_themis,/log, /pkcursor
 
 ## Generating Keograms
 
-```asi_tools``` has the ability to generate North-South and East-West keograms where the keograms are in equally spaced geomagnetic coordiantes, e.g., North-South keograms in geomagnetic latitude and East-West keograms in geomagnetic longitude, rather then pixel coordinates. The keograms are generated using the skymap pixel positions and can be calculated for any of the skymap altitudes(90, 100, 150 km). North-South keograms are generated with ```asi_nskeo()``` and East-West keograms are generated with ```asi_ewkeo()```. Similar to ```asi_peakogram()```, in order to easily generate keograms over a fixed time frame from multiple stations apart of different arrays both keogram functions use the following format for station names ```????_array```, where ```????``` is the four letter station code and ```array``` is the array to load the station data from, e.g., ```themis```, ```rego```. 
+```asi_tools``` has the ability to generate North-South and East-West keograms where the keograms are in equally spaced geomagnetic coordiantes, e.g., North-South keograms in geomagnetic latitude and East-West keograms in geomagnetic longitude, rather then pixel coordinates. The keograms are generated using the skymap pixel positions and can be calculated for any of the skymap altitudes(90, 100, 150 km). North-South keograms are generated with ```asi_nskeo()``` and East-West keograms are generated with ```asi_ewkeo()```. Similar to ```asi_peakogram()```, in order to easily generate keograms over a fixed time frame from multiple stations apart of different arrays both keogram functions use the following format for station names ```????_array```, where ```????``` is the four letter station code and ```array``` is the array to load the station data from, e.g., ```themis```, ```rego```. The ```keo_pos``` keyword for each of the keogram functions will plot the location and bins of the keograms in the field-of-view of the all sky imager.
 
-Both keogram functions return an IDL structure which  contains metadata information (station name and array), the keogram, the y-axis (latitude or longitude), the x-axis (time) and the y-range. If multiple stations are passed then a structure of structures is returned. 
+Both keogram functions return an IDL structure which contains metadata information (station name and array), the keogram, the y-axis (latitude or longitude), the x-axis (time) and the y-range. If multiple stations are passed then a structure of structures is returned. 
 
-Keograms can be easily plotted using by setting the ```add_tplot``` keyword which stores the keograms as tplot variables. Additional plotting functionality will be added in the future. 
+Keograms can be easily plotted using by setting the ```add_tplot``` keyword which stores the keograms as tplot variables. Keograms can also be plotted with the ```asi_keoplot``` procedure using ```asi_keoplot, keo_str```, where ```keo_str``` is the structure returned from one of the keogram functions. ```asi_keoplot``` will plot multiple stations and allow users to overplot on the existing plot.
 
 The the advantage of ```asi_tools``` is that the keograms have an equally spaced y-axis (latitude or longitude) allowing for quantifiable analysis (e.g. power spectral density/Fourier analysis). For each function the user specifies the limits of the keogram, min and max geomagnetic latitude/longitude, and the number of bins to divide the latitudinal region (N-S keogram) or longitidinal region (E-W) into. Both keogram functions also offer the utility to plot the region of keogram and keogram bins overtop of an ASI image using the ```keo_pos``` keyword. Two examples are below. 
 
 ### Examples
 
 ```idl
-; generate a North-South keogram
+; generate and plot a North-South keogram
 ; from the GBAY REGO asi from
 ; the Gilles et al. 2018 paper
 
 gill_keo = asi_nskeo('gill_rego', '2015-02-02/10:00:00', 60, 100, 62, 68, -26, -25, /minutes, min_elevation=15, /add_tplot, /keo_pos)
+
+window, 0, xsize=750, ysize=200
+!x.margin=[15,15]
+asi_keoplot, gill_keo, /log, ytitle='Geomagnetic Latitude', xtitle='Time - UT'
 
 ; generate an East-West keogram
 ; from the GBAY THEMIS asi from
 ; the Tian et al. 2022 paper
 
 gbay_keo = asi_ewkeo('gbay_themis', '2015-02-18/01:55:00', 25, 50, 18, 29, 61, 63, /minutes, min_elevation=15, /add_tplot,/keo_pos)
+
+window, 0, xsize=750, ysize=200
+!x.margin=[15,15]
+asi_keoplot, keo_gbay, /log, ytitle='Geomagnetic Longitude', xtitle='Time - UT'
 
 ```
