@@ -67,6 +67,8 @@ function asi_ewkeo, $
       r_str = create_struct(r_str,asi_loading,r_dat)
     endfor
 
+    r_str = create_struct(r_str,'n_sites',site.length)
+
     return, r_str
   endif
 
