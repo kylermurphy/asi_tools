@@ -7,7 +7,6 @@ pro asi_keoplot, $
   ct_file=ct_file, $ ; file to load color table
   log=log, $ ; log 10 the intensity before plotting
   overplot=overplot, $ ; overplot on the current plot
-  pkcursor=pkcursor, $ ; plot the asi image with peaks and longitude slices
   _EXTRA=ex ; extra keywords for plotting (e.g., x and y titles)
   
   !x.style=1
@@ -29,7 +28,7 @@ pro asi_keoplot, $
 
 
     p_sites = where(keo_tags ne 'N_SITES',pc)
-    n_sites = keo_tags.n_sites
+    n_sites = keo_str.n_sites
 
     ;check if overplot keyword was set and
     ; if there are enough plots left in
@@ -78,9 +77,9 @@ pro asi_keoplot, $
         endif
       endif
 
-;      asi_keoplot, pk_str.(p_sites[i]),trange=trange_pass, imin=imin_pass, imax=imax_pass, $
-;        sym_ct=sym_ct_pass, ct_file=ct_file_pass, log=log_pass, overplot=overplot, $
-;        ytitle=pk_tags[p_sites[i]], yrange=yrange
+      asi_keoplot, keo_str.(p_sites[i]),trange=trange_pass, imin=imin_pass, imax=imax_pass, $
+        keo_ct=keo_ct_pass, ct_file=ct_file_pass, log=log_pass, overplot=overplot, $
+        ytitle=keo_tags[p_sites[i]], yrange=yrange
     endfor
 
     ;once looped through all sites stop
@@ -156,7 +155,10 @@ pro asi_keoplot, $
   ; find the scales for plotting if not set
   ; and log values if log is set
   if keyword_set(imax) then cmax=imax else cmax=max(parr)
-  if keyword_set(imin) then cmin=imin else cmin=min(parr)
+  if keyword_set(imin) then cmin=imin else begin
+    g_int = where(parr gt 100)
+    cmin=min(parr[g_int])
+  endelse
 
   crange = [cmin,cmax]
   
@@ -173,12 +175,6 @@ pro asi_keoplot, $
   tvscale,parr, /overplot,/nointerpolation, minvalue=crange[0], maxvalue=crange[1]
   asi_colorbar,range=cplot,position=pos, log=log, yticklen=-1, ytitle='Intensity'
 
-  
-  
-  
-  
-  
-  
 end
   
   
@@ -193,11 +189,12 @@ end
 ;!x.margin=[15,15]
 ;asi_keoplot, keo_gbay,/log, ytitle='Geomagnetic Longitude', xtitle='Time - UT'
 
-keo_3 = asi_nskeo(['kuuj_themis','snkq_themis','gill_themis'],'2011-04-09:04:00:00', 60, $
-  [100,100,100],[62,62,62],[72,72,72],[12.5,-5,-30],[13.5,-3,-29], $
-  /minutes, min_elevation=[15,15,15], /add_tplot, /local)
-  
-asi_keoplot, keo_3, /log
+;keo_3 = asi_nskeo(['kuuj_themis','snkq_themis','gill_themis'],'2011-04-09:04:00:00', 60, $
+;  [100,100,100],[62,62,62],[72,72,72],[12.5,-5,-30],[13.5,-3,-29], $
+;  /minutes, min_elevation=[15,15,15], /add_tplot, /local)
+
+restore, 'D:\out_put\keo_3.sav',/verbose  
+asi_keoplot, keo_3, /log, keo_ct = [7,49,58], yrange=[[62,71],[62,69],[62,70]], imin=[3000,4000,4000], imax = [10000,10000,11000]
 
 
 end
