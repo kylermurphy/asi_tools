@@ -108,7 +108,8 @@ asi_peakoplot, dat, yrange=[64,67]
 
 ; same as above but load data locally (don't search web for data)
 ; and plot asi images and peak locations using pkcursor
-dat = asi_peakogram('gill_rego', '2015-02-02/10:00:00', 60, /minutes, n_longitude=2, min_elevation=15, /local)
+dat = asi_peakogram('gill_rego', '2015-02-02/10:00:00', 60, /minutes, $
+    n_longitude=2, min_elevation=15, /local)
 asi_peakoplot, dat, yrange=[64,67], /pkcursor 
 
 ; generate a peakogram from SNKQ THEMIS, GILL REGO, FSIM THEMIS
@@ -130,7 +131,8 @@ tplot,'*'
 ;  each station
 ; call pkcursor on one station
 
-dat = asi_peakogram(['snkq_themis','kuuj_themis','gill_themis'], '2011-04-09/04:00:00', 45, /minutes,n_longitude=2, min_elevation=10)
+dat = asi_peakogram(['snkq_themis','kuuj_themis','gill_themis'], '2011-04-09/04:00:00', 45, /minutes, $
+    n_longitude=2, min_elevation=10)
 asi_peakoplot, dat,/log, imin=[3000,3000,3000], imax=[10000,10000,10000],yrange=[[62,69],[63,68],[62,72]]
 
 window, 0
@@ -155,20 +157,49 @@ The the advantage of ```asi_tools``` is that the keograms have an equally spaced
 ; from the GBAY REGO asi from
 ; the Gilles et al. 2018 paper
 
-gill_keo = asi_nskeo('gill_rego', '2015-02-02/10:00:00', 60, 100, 62, 68, -26, -25, /minutes, min_elevation=15, /add_tplot, /keo_pos)
+gill_keo = asi_nskeo('gill_rego', '2015-02-02/10:00:00', 60, 100, 62, 68, -26, -25, /minutes, $
+    min_elevation=15, /add_tplot, /keo_pos)
 
-window, 0, xsize=750, ysize=200
+window, 0, xsize=750, ysize=400
 !x.margin=[15,15]
-asi_keoplot, gill_keo, /log, ytitle='Geomagnetic Latitude', xtitle='Time - UT'
+asi_keoplot, gill_keo, /log, ytitle='Geomagnetic Latitude', xtitle='Time - UT', keo_ct=62
 
 ; generate an East-West keogram
 ; from the GBAY THEMIS asi from
 ; the Tian et al. 2022 paper
 
-gbay_keo = asi_ewkeo('gbay_themis', '2015-02-18/01:55:00', 25, 50, 18, 29, 61, 63, /minutes, min_elevation=15, /add_tplot,/keo_pos)
+gbay_keo = asi_ewkeo('gbay_themis', '2015-02-18/01:55:00', 25, 50, 18, 29, 61, 63, /minutes, $
+    min_elevation=15, /add_tplot, /keo_pos)
 
-window, 0, xsize=750, ysize=200
+window, 1, xsize=750, ysize=400
 !x.margin=[15,15]
-asi_keoplot, keo_gbay, /log, ytitle='Geomagnetic Longitude', xtitle='Time - UT'
+asi_keoplot, keo_gbay, /log, ytitle='Geomagnetic Longitude', xtitle='Time - UT', keo_ct=51
+
+; generate keograms in the 
+; same format as above but 
+; load local data only
+
+gill_keo = asi_nskeo('gill_rego', '2015-02-02/10:00:00', 60, 100, 62, 68, -26, -25, /minutes, $
+    min_elevation=15, /add_tplot, /keo_pos, /local)
+
+gbay_keo = asi_ewkeo('gbay_themis', '2015-02-18/01:55:00', 25, 50, 18, 29, 61, 63, /minutes, $
+    min_elevation=15, /add_tplot, /keo_pos, /local)
+
+; generate three keograms from
+; the THEMIS ASI array using 
+; varing inputs for each 
+
+keo_3 = asi_nskeo(['kuuj_themis','snkq_themis','gill_themis'],'2011-04-09:04:00:00', 60, $
+  [100,100,100],[62,62,62],[72,72,72],[12.5,-5,-30],[13.5,-3,-29], $
+  /minutes, min_elevation=[15,15,15], /add_tplot, /local)
+
+; plot using the asi_keoplot 
+; procedure and varying plotting 
+; parameters for each
+
+asi_keoplot, keo_3, /log, keo_ct = [7,49,58], $
+    yrange=[[62,71],[62,69],[62,70]], $
+    imin=[3000,4000,4000], $
+    imax = [10000,10000,11000]
 
 ```
