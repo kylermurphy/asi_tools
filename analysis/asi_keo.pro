@@ -125,7 +125,7 @@ function asi_keo, $
     !y.margin=[5,5]
     loadct,0,/silent
     plot, [0,asi_paths.asi_x],[0,asi_paths.asi_y], /nodata, xtickf='asi_nt', ytickf='asi_nt',/isotropic, $
-        title= strupcase(asi_paths.asi_site)+' - '+strupcase(asi_paths.asi_array)
+        title= strupcase(asi_paths.asi_site)+' - '+strupcase(asi_paths.asi_array), ystyle=1, xstyle=1
     loadct,0,/silent
     ;plot the brighest asi image
     tvscale, alog10(asi_img), /overplot, /nointerpolation, maxvalue=4
@@ -133,6 +133,7 @@ function asi_keo, $
     contour,asi_paths.asi_skymap.center_mag_latitude[*,*,alt],/overplot, levels = [min_lat,max_lat], c_labels = [1,1]
     contour,asi_paths.asi_skymap.center_mag_longitude[*,*,alt],/overplot, levels = [min_lon,max_lon], c_labels = [1,1]
     ;grab the window so we can do transparency
+    
     win1 = TVREAD(TRUE=3)
     
     ;plot the keogram bins
